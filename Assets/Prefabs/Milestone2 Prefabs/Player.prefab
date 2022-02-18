@@ -173,6 +173,7 @@ MonoBehaviour:
   movementSpeed: 15
   climbingSpeed: 7.5
   lookSensitivityX: 5
+  lookSensitivityY: 1.5
   jumpForce: 35
   gravityMultiplier: 5
   grappleControlForce: 5
