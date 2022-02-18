@@ -1,0 +1,165 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.UI;
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+
+    // tracking variables
+    private Vector3 movementInput;
+    private Vector3 rotateInputX;
+    private Rigidbody playerBody;
+    public Vector3 startPos;
+    public bool isGrappling;
+    public bool isGrounded;
+    public bool isClimbing;
+    public Slider healthSlider;
+
+    // modifiable player attributes
+
+    // attack variables
+    public GameObject attackRefPoint;    // where raycast for attack will come from
+    public float attackRange = 5f;
+    public float attackMeleeDamage = 10f;
+
+    // player health
+    public float maxHealth = 100f;
+    public float curHealth;
+
+    // movement variables
+    public float movementSpeed = 15f;
+    public float climbingSpeed = 7.5f;
+    public float lookSensitivityX = 5f;
+    public float lookSensitivityY = 5f;
+    public float jumpForce = 10f;
+    public float gravityMultiplier = 1f;
+    public float grappleControlForce = 5f;
+
+    // misc. variables
+    public float respawnY = -50;
+
+
+    private void Start()
+    {
+        Time.timeScale = 1;
+
+        playerBody = gameObject.GetComponent<Rigidbody>();
+        startPos = transform.position;
+        curHealth = maxHealth;
+
+        if (gravityMultiplier < 1)
+        {
+            gravityMultiplier = 1;
+        }
+    }
+
+    private void Update()
+    {
+        // ui health
+        healthSlider.value = curHealth;
+
+        // get inputs - more responsive in update
+        movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
+        movementInput = transform.TransformDirection(movementInput);
+
+        rotateInputX = new Vector3(0f, Input.GetAxisRaw("Mouse X"), 0f);
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && !CheckOnClimbable())
+        {
+            playerBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+        else if (Input.GetKey(KeyCode.Space) && CheckOnClimbable())
+        {
+            isClimbing = true;
+        }
+        else
+        {
+            isClimbing = false;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            PlayerAttack();
+        }
+
+        // attack distance rays
+        Debug.DrawRay(attackRefPoint.transform.position, attackRefPoint.transform.forward * attackRange, Color.red);
+
+        // climb rays
+        Debug.DrawRay(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward * 1.5f, Color.blue);
+        Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward * 1.5f, Color.blue);
+        Debug.DrawRay(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward * 1.5f, Color.blue);
+    }
+
+    private bool CheckOnClimbable()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out hit, 1.5f) ||
+            Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out hit, 1.5f) ||
+            Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward, out hit, 1.5f))
+        {
+            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void FixedUpdate()
+    {
+        if (!isClimbing)
+        {
+            playerBody.AddForce(Vector3.down * -Physics.gravity.y * (gravityMultiplier - 1));
+        }
+
+        // move player
+        if (isGrappling && !isGrounded)
+        {
+            playerBody.AddForce(movementInput * grappleControlForce, ForceMode.Acceleration);
+        }
+        else if (isClimbing)
+        {
+            playerBody.velocity = new Vector3(movementInput.x * climbingSpeed, movementInput.z * climbingSpeed, 0f);
+        }
+        else
+        {
+            playerBody.velocity = new Vector3(movementInput.x * movementSpeed, playerBody.velocity.y, movementInput.z * movementSpeed);
+        }
+
+        // rotate player -- may need to check for a better way to do this
+        // camera is rotating on fixed update, this could be causing some lag
+        Quaternion deltaRotation = Quaternion.Euler(rotateInputX * lookSensitivityX);
+        playerBody.MoveRotation(playerBody.rotation * deltaRotation);
+
+    }
+
+    private void LateUpdate()
+    {
+        if (transform.position.y <= respawnY || curHealth <= 0)
+        {
+            transform.position = startPos;
+            curHealth = maxHealth;
+        }
+    }
+
+    private void PlayerAttack()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(attackRefPoint.transform.position, attackRefPoint.transform.forward, out hit, attackRange))
+        {
+            if (hit.transform.tag == "Enemy")
+            {
+                EnemyController enemyScript = hit.transform.GetComponent<EnemyController>();
+                enemyScript.curHealth -= attackMeleeDamage;
+            }
+        }
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(attackRefPoint.transform.position, attackRefPoint.transform.forward * attackRange);
+        Gizmos.color = Color.blue;
+    }
+}
