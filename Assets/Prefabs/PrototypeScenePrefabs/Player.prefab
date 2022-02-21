@@ -275,12 +275,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44bc3160b0f401949bc1819a8195a53d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whatIsGrappleable:
-    serializedVersion: 2
-    m_Bits: 4294967295
   gunTip: {fileID: 9089157878397996178}
-  camera: {fileID: 0}
+  rayCastOrigin: {fileID: 0}
   player: {fileID: 7422873837905125396}
+  grappleDistance: 100
 --- !u!1 &7422873837905125398
 GameObject:
   m_ObjectHideFlags: 0
@@ -292,7 +290,7 @@ GameObject:
   - component: {fileID: 7422873837905125396}
   - component: {fileID: 9089157879092971190}
   - component: {fileID: 9089157879092971191}
-  - component: {fileID: 9089157879092971184}
+  - component: {fileID: 89765075551273587}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -347,7 +345,7 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &9089157879092971184
+--- !u!114 &89765075551273587
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -356,12 +354,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 7422873837905125398}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4441a24f79392ce46a949e7a0dbd96e2, type: 3}
+  m_Script: {fileID: 11500000, guid: 7032d4684eafb234c8699782066fb6da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startPos: {x: 0, y: 0, z: 0}
+  isGrappling: 0
+  isGrounded: 0
+  isClimbing: 0
+  healthSlider: {fileID: 0}
+  attackRefPoint: {fileID: 0}
+  attackRange: 5
+  attackMeleeDamage: 10
+  maxHealth: 100
+  curHealth: 0
   movementSpeed: 15
-  jumpForce: 40
-  gravityMultiplier: 50
+  climbingSpeed: 7.5
+  lookSensitivityX: 5
+  lookSensitivityY: 5
+  jumpForce: 10
+  gravityMultiplier: 1
+  grappleControlForce: 5
+  respawnY: -50
 --- !u!1 &9089157878397996189
 GameObject:
   m_ObjectHideFlags: 0
@@ -436,4 +449,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 7422873837905125398}
-  sensitivity: 2
