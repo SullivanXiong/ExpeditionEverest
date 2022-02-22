@@ -80,7 +80,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            PlayerAttack();
+            Debug.Log("TEMP ATTACK");
         }
 
         // attack distance rays
@@ -144,18 +144,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void PlayerAttack()
-    {
-        RaycastHit hit;
-        if (Physics.Raycast(attackRefPoint.transform.position, attackRefPoint.transform.forward, out hit, attackRange))
-        {
-            if (hit.transform.tag == "Enemy")
-            {
-                EnemyController enemyScript = hit.transform.GetComponent<EnemyController>();
-                enemyScript.curHealth -= attackMeleeDamage;
-            }
-        }
-    }
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
