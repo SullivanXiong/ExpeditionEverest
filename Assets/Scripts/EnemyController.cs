@@ -5,103 +5,53 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
 
-    // TODO so they try to get back to their original position
-
-    public float maxHealth = 100f;
-    public float curHealth;
-    public float destroyDistanceY = -50;
-    private Vector3 startPos;
-
-    public float movementSpeed = 15f;
-
     public GameObject player;
-    public GameObject bullet;
-    public float attackDetectDistance = 100f;
-    public float fireCooldown;
-    public float coolDownTrack;
-    private bool isAttacking;
+    private Rigidbody enemyBody;
+    public GameObject enemyUI;
+    public GameObject enemyUILookAt;
+    private PlayerController playerScript;
+    public bool isGrappled;
+    public bool needReset;
+    public float nonMovementSpeedThres = 0.5f;
 
-    public bool isStunned;
-    public float stunDuration = 2f;
-    public float curStuntime;
-    public GameObject stunnedParticles;
-
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        curHealth = maxHealth;
-        startPos = transform.position;
+        enemyBody = gameObject.GetComponent<Rigidbody>();
+        playerScript = player.GetComponent<PlayerController>();
+        enemyBody.isKinematic = true;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-
-        if (curStuntime <= 0)
+        if (isGrappled == true)
         {
-            isStunned = false;
+            needReset = true;
+            Debug.Log("Ahhhhh");
         }
-        else
+        // this may be disgusting
+        else if (!isGrappled && needReset && enemyBody.velocity.magnitude <= nonMovementSpeedThres && enemyBody.angularVelocity.magnitude <= nonMovementSpeedThres)
         {
-            curStuntime -= Time.deltaTime;
+            Debug.Log("Im free...");
+
+            enemyBody.isKinematic = true;
+            transform.rotation = new Quaternion(0, transform.rotation.y, 0, 0);
+            transform.position = new Vector3(transform.position.x, transform.localScale.y / 2, transform.position.z);
+
+            needReset = false;
         }
 
-        if (curHealth <= 0 || transform.position.y <= destroyDistanceY)
-        {
-            Destroy(gameObject);
-        }
-
-        if (!isStunned)
-        {
-
-            if (transform.position != startPos)
-            {
-                Debug.Log("Moving Enemy Back");
-                transform.position = Vector3.MoveTowards(transform.position, startPos, Time.deltaTime * movementSpeed);
-            }
-
-            stunnedParticles.SetActive(false);
-
-            if (transform.position != startPos)
-            {
-
-            }
-
-            if (isAttacking == true && coolDownTrack > 0)
-            {
-                coolDownTrack -= Time.deltaTime;
-            }
-            if (isAttacking == true && coolDownTrack <= 0)
-            {
-                isAttacking = false;
-            }
-
-            if (Vector3.Distance(player.transform.position, transform.position) <= attackDetectDistance)
-            {
-                AttackPlayer();
-            }
-        }
-        else
-        {
-            stunnedParticles.SetActive(true);
-        }
+        AdjustUI();
     }
 
-    void AttackPlayer()
+    private void AdjustUI()
     {
-        transform.LookAt(player.transform);
-        if (isAttacking == false)
-        {
-            Instantiate(bullet, transform.position, transform.rotation);
-            isAttacking = true;
-            coolDownTrack = fireCooldown;
-        }
-
+        enemyUI.transform.position = new Vector3(transform.position.x, transform.position.y + 4, transform.position.z);
     }
 
-    private void OnDrawGizmos()
+    private void FixedUpdate()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, attackDetectDistance);
+        // add same gravity force as player is experiencing
+        enemyBody.AddForce(Vector3.down * -Physics.gravity.y * (playerScript.gravityMultiplier - 1));
     }
+
 }
