@@ -44,7 +44,8 @@ public class GrapplingGun : MonoBehaviour
                 }
                 else if (enemyCloseEnough)
                 {
-                    grappleHit.transform.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+                    grappleHit.transform.GetComponent<Rigidbody>().velocity = new Vector3(0, Physics.gravity.y, 0);
+                    grappleHit.transform.GetComponent<EnemyController>().isGrappled = false;
                     KillGrapple();
                 }
             }
@@ -60,7 +61,8 @@ public class GrapplingGun : MonoBehaviour
             // can change this to just kill the grapple and enemy will keep their inertia
             if (hitEnemy == true)
             {
-                grappleHit.transform.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+                grappleHit.transform.GetComponent<Rigidbody>().velocity = new Vector3(0, Physics.gravity.y, 0);
+                grappleHit.transform.GetComponent<EnemyController>().isGrappled = false;
                 KillGrapple();
             }
             else
@@ -115,10 +117,11 @@ public class GrapplingGun : MonoBehaviour
             {
                 // Note this raycast may be hitting something of the enemy that doesnt have rigidbody attached, could be causing
                 // bug where pulling doesn't work
-                Debug.Log(grappleHit.transform.gameObject);
+                //Debug.Log(grappleHit.transform.gameObject);
 
                 GameObject enemy = grappleHit.transform.gameObject;
                 enemy.GetComponent<Rigidbody>().isKinematic = false;
+                enemy.GetComponent<EnemyController>().isGrappled = true;
 
                 PullAction(enemy);
 
