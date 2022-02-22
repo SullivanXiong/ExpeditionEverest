@@ -210,7 +210,7 @@ MonoBehaviour:
   curHealth: 0
   destroyDistanceY: -50
   movementSpeed: 15
-  player: {fileID: 0}
+  player: {fileID: 8231069213828965708, guid: febc8748df6b88748b4453142b13f497, type: 3}
   bullet: {fileID: 1875355264458029272, guid: 3c1b0c79a8606a040b336cbc00b33fd0, type: 3}
   attackDetectDistance: 50
   fireCooldown: 2

@@ -5,19 +5,21 @@ public class GrapplingGun : MonoBehaviour
 
     private LineRenderer lr;
     private RaycastHit grappleHit;
-    private Vector3 lrAttachPt;
     private bool didHit;
+    private bool hitEnemy;
+    private bool enemyCloseEnough;
     private SpringJoint joint;
-    private PlayerController playerScript;
 
+    private PlayerController playerScript;
     public Transform gunTip, rayCastOrigin, player;
     public float grappleDistance = 100f;
+    public float enemyPullSpeed = 10f;
+    public float distancePullSeperate = 5f;
 
     void Start()
     {
         lr = GetComponent<LineRenderer>();
-        lr.SetPosition(0, gunTip.transform.position);
-        lr.SetPosition(1, gunTip.transform.position);
+        ResetLrPos();
 
         playerScript = player.GetComponent<PlayerController>();
     }
@@ -31,22 +33,78 @@ public class GrapplingGun : MonoBehaviour
 
         if (Input.GetKey(KeyCode.Mouse1) && didHit == true)
         {
-            lr.SetPosition(0, gunTip.transform.position);
-            lr.SetPosition(1, lrAttachPt);
+            if (hitEnemy == true)
+            {
+                enemyCloseEnough = Vector3.Distance(grappleHit.transform.position, player.transform.position) <= distancePullSeperate;
+
+                if (!enemyCloseEnough)
+                {
+                    PullAction(grappleHit.transform.gameObject);
+                    SetLrPos();
+                }
+                else if (enemyCloseEnough)
+                {
+                    grappleHit.transform.GetComponent<Rigidbody>().velocity = new Vector3(0, Physics.gravity.y, 0);
+                    grappleHit.transform.GetComponent<EnemyController>().isGrappled = false;
+                    KillGrapple();
+                }
+            }
+            else
+            {
+                SetLrPos();
+            }
+
             playerScript.isGrappling = true;
         }
         else
         {
-            lr.SetPosition(0, gunTip.transform.position);
-            lr.SetPosition(1, gunTip.transform.position);
-            if (joint != null)
+            // can change this to just kill the grapple and enemy will keep their inertia
+            if (hitEnemy == true)
             {
-                Destroy(joint);
+                grappleHit.transform.GetComponent<Rigidbody>().velocity = new Vector3(0, Physics.gravity.y, 0);
+                grappleHit.transform.GetComponent<EnemyController>().isGrappled = false;
+                KillGrapple();
             }
-            playerScript.isGrappling = false;
+            else
+            {
+                KillGrapple();
+            }
         }
 
         Debug.DrawRay(rayCastOrigin.transform.position, rayCastOrigin.transform.forward * grappleDistance, Color.green);
+    }
+
+    private void KillGrapple()
+    {
+        ResetLrPos();
+        if (joint != null)
+        {
+            Destroy(joint);
+        }
+        didHit = false;
+        hitEnemy = false;
+        enemyCloseEnough = false;
+        playerScript.isGrappling = false;
+    }
+
+    private void SetLrPos()
+    {
+        lr.SetPosition(0, gunTip.transform.position);
+
+        if (hitEnemy == true)
+        {
+            lr.SetPosition(1, grappleHit.transform.position);
+        }
+        else
+        {
+            lr.SetPosition(1, grappleHit.point);
+        }
+    }
+
+    private void ResetLrPos()
+    {
+        lr.SetPosition(0, gunTip.transform.position);
+        lr.SetPosition(1, gunTip.transform.position);
     }
 
     private void TryGrapple()
@@ -54,25 +112,28 @@ public class GrapplingGun : MonoBehaviour
         if (Physics.Raycast(rayCastOrigin.transform.position, rayCastOrigin.forward, out grappleHit, grappleDistance)
             && grappleHit.transform.gameObject.layer == LayerMask.NameToLayer("Grappleable")) // grapple hits
         {
-            lrAttachPt = grappleHit.point;
-            lr.SetPosition(0, gunTip.transform.position);
-            lr.SetPosition(1, lrAttachPt);
 
             if (grappleHit.transform.tag == "Enemy")
             {
-                Vector3 inFrontOfPlayer = player.transform.position + player.transform.forward * 4;
+                // Note this raycast may be hitting something of the enemy that doesnt have rigidbody attached, could be causing
+                // bug where pulling doesn't work
+                //Debug.Log(grappleHit.transform.gameObject);
 
                 GameObject enemy = grappleHit.transform.gameObject;
-                Debug.Log("Hit Enemy");
-                enemy.GetComponent<EnemyController>().isStunned = true;
-                enemy.GetComponent<EnemyController>().curStuntime = enemy.GetComponent<EnemyController>().stunDuration;
+                enemy.GetComponent<Rigidbody>().isKinematic = false;
+                enemy.GetComponent<EnemyController>().isGrappled = true;
 
-                // temp means of moving enemy to player
-                enemy.transform.position = inFrontOfPlayer;
+                PullAction(enemy);
+
+                hitEnemy = true;
+                SetLrPos();
             }
             else
             {
                 CreateJointSwing();
+
+                hitEnemy = false;
+                SetLrPos();
             }
 
             // set tracking variable
@@ -80,30 +141,20 @@ public class GrapplingGun : MonoBehaviour
         }
         else
         {
-            // reset line positions
-            lr.SetPosition(0, gunTip.transform.position);
-            lr.SetPosition(1, gunTip.transform.position);
+            ResetLrPos();
 
             // set tracking variable
+            hitEnemy = false;
             didHit = false;
+
         }
     }
 
-    //void CreateJointEnemy()
-    //{
-    //    joint = grappleHit.transform.gameObject.AddComponent<SpringJoint>();
-    //    joint.autoConfigureConnectedAnchor = false;
-    //    joint.connectedAnchor = player.transform.position;
-
-    //    float distanceFromPoint = Vector3.Distance(player.transform.position, grappleHit.transform.position);
-
-    //    joint.maxDistance = distanceFromPoint * 0.8f;
-    //    joint.minDistance = distanceFromPoint * 0.2f;
-
-    //    joint.spring = 50f;
-    //    joint.damper = 7f;
-    //    joint.massScale = 4.5f;
-    //}
+    void PullAction(GameObject enemy)
+    {
+        Vector3 moveVector = (player.transform.position - enemy.transform.position).normalized;
+        enemy.GetComponent<Rigidbody>().velocity = moveVector * enemyPullSpeed;
+    }
 
     void CreateJointSwing()
     {
