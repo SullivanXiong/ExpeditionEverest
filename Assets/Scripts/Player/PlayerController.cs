@@ -60,8 +60,14 @@ public class PlayerController : MonoBehaviour
         healthSlider.value = curHealth;
 
         // get inputs - more responsive in update
-        movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
-        movementInput = transform.TransformDirection(movementInput);
+        if (isClimbing)
+        {
+            movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0f).normalized;
+        }
+        else
+        {
+            movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
+        }
 
         rotateInputX = new Vector3(0f, Input.GetAxisRaw("Mouse X"), 0f);
 
@@ -119,13 +125,14 @@ public class PlayerController : MonoBehaviour
         {
             playerBody.AddForce(movementInput * grappleControlForce, ForceMode.Acceleration);
         }
+        // this may be causing some stuttering, come back to this eventually
         else if (isClimbing)
         {
-            playerBody.velocity = new Vector3(movementInput.x * climbingSpeed, movementInput.z * climbingSpeed, 0f);
+            playerBody.velocity = transform.TransformDirection(new Vector3(movementInput.x * climbingSpeed, movementInput.y * climbingSpeed, 0f));
         }
         else
         {
-            playerBody.velocity = new Vector3(movementInput.x * movementSpeed, playerBody.velocity.y, movementInput.z * movementSpeed);
+            playerBody.velocity = transform.TransformDirection(new Vector3(movementInput.x * movementSpeed, playerBody.velocity.y, movementInput.z * movementSpeed));
         }
 
         // rotate player -- may need to check for a better way to do this
