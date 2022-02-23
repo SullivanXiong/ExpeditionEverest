@@ -25,8 +25,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3815362198594526814}
-  m_LocalRotation: {x: -0.20255609, y: -0.057882577, z: 0.011613722, w: -0.97748953}
-  m_LocalPosition: {x: 1.942, y: 4.01, z: -8}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.692, y: 4.51, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3815362198637454299}
@@ -170,11 +170,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd6043bde05a7fc4cba197d06915c1e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damping: {x: 0.1, y: 0.5, z: 3}
+  Damping: {x: 0.1, y: 0.5, z: 0.5}
   ShoulderOffset: {x: 0.5, y: -0.4, z: 0}
   VerticalArmLength: 0.4
-  CameraSide: 1
-  CameraDistance: 8
+  CameraSide: 0.75
+  CameraDistance: 6
   CameraCollisionFilter:
     serializedVersion: 2
     m_Bits: 0
