@@ -30,13 +30,13 @@ public class CameraFollow : MonoBehaviour
 
     Vector3 CameraLimit(Vector3 cameraRotation)
     {
-        if (cameraRotation.y < -50)
+        if (cameraRotation.x < -50)
         {
-            cameraRotation.y = -50;
+            cameraRotation.x = -50;
         }
-        if (cameraRotation.y > 50)
+        if (cameraRotation.x > 50)
         {
-            cameraRotation.y = 50;
+            cameraRotation.x = 50;
         }
         return cameraRotation;
     }

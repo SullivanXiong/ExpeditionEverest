@@ -11,6 +11,7 @@ public class GrapplingGun : MonoBehaviour
     private SpringJoint joint;
 
     private PlayerController playerScript;
+    private PowerUp playerPowers;
     public Transform gunTip, rayCastOrigin, player;
     public float grappleDistance = 100f;
     public float enemyPullSpeed = 10f;
@@ -22,11 +23,12 @@ public class GrapplingGun : MonoBehaviour
         ResetLrPos();
 
         playerScript = player.GetComponent<PlayerController>();
+        playerPowers = player.GetComponent<PowerUp>();
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse1))
+        if (Input.GetKeyDown(KeyCode.Mouse1) && playerPowers.canGrapple)
         {
             TryGrapple();
         }
