@@ -8,6 +8,8 @@ TagManager:
   - Wall
   - Enemy
   - Checkpoint
+  - PowerUpGrappleHook
+  - PowerUpClimbingPick
   layers:
   - Default
   - TransparentFX
