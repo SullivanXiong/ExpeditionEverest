@@ -26,12 +26,12 @@ public class EnemyController : MonoBehaviour
         if (isGrappled == true)
         {
             needReset = true;
-            Debug.Log("Ahhhhh");
+            //Debug.Log("Ahhhhh");
         }
         // this may be disgusting
         else if (!isGrappled && needReset && enemyBody.velocity.magnitude <= nonMovementSpeedThres && enemyBody.angularVelocity.magnitude <= nonMovementSpeedThres)
         {
-            Debug.Log("Im free...");
+            //Debug.Log("Im free...");
 
             enemyBody.isKinematic = true;
             transform.rotation = new Quaternion(0, transform.rotation.y, 0, 0);

@@ -13,8 +13,9 @@ public class PlayerController : MonoBehaviour
     private PowerUp playerPowers;
 
     public Vector3 startPos;
-    public bool isGrappling;
     public bool isGrounded;
+    private GameObject curGround;
+    public bool isGrappling;
     public bool isClimbing;
     public Slider healthSlider;
 
@@ -193,5 +194,25 @@ public class PlayerController : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawRay(attackRefPoint.transform.position, attackRefPoint.transform.forward * attackRange);
         Gizmos.color = Color.blue;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        // this code may be messy on the > 0 check
+        // may need to do more research/testing to see if this threshold is appropriate
+        // same with OnCollisionExit
+        if (collision.GetContact(0).normal.y > 0)
+        {
+            isGrounded = true;
+            curGround = collision.gameObject;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject == curGround)
+        {
+            isGrounded = false;
+        }
     }
 }
