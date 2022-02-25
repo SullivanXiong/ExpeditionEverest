@@ -17,6 +17,7 @@ public class CheckGrounded : MonoBehaviour
         if (other.transform.gameObject.layer != LayerMask.NameToLayer("TriggerCollider"))
         {
             playerScript.isGrounded = true;
+            Debug.Log("TRUE");
         }
 
     }
@@ -26,6 +27,7 @@ public class CheckGrounded : MonoBehaviour
         if (other.transform.gameObject.layer != LayerMask.NameToLayer("TriggerCollider"))
         {
             playerScript.isGrounded = false;
+            Debug.Log("FALSE");
         }
     }
 

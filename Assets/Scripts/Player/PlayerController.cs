@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     private Vector3 movementInput;
     private Vector3 rotateInputX;
     private Rigidbody playerBody;
+    private PowerUp playerPowers;
+
     public Vector3 startPos;
     public bool isGrappling;
     public bool isGrounded;
@@ -45,6 +47,8 @@ public class PlayerController : MonoBehaviour
         Time.timeScale = 1;
 
         playerBody = gameObject.GetComponent<Rigidbody>();
+        playerPowers = gameObject.GetComponent<PowerUp>();
+
         startPos = transform.position;
         curHealth = maxHealth;
 
@@ -60,6 +64,8 @@ public class PlayerController : MonoBehaviour
         healthSlider.value = curHealth;
 
         // get inputs - more responsive in update
+        rotateInputX = new Vector3(0f, Input.GetAxisRaw("Mouse X"), 0f);
+
         if (isClimbing)
         {
             movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0f).normalized;
@@ -69,24 +75,55 @@ public class PlayerController : MonoBehaviour
             movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
         }
 
-        rotateInputX = new Vector3(0f, Input.GetAxisRaw("Mouse X"), 0f);
-
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && !CheckOnClimbable())
+        // jump handling
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            playerBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        }
-        else if (Input.GetKey(KeyCode.Space) && CheckOnClimbable())
-        {
-            isClimbing = true;
+            if (isGrounded)
+            {
+                if (CheckOnClimbable() && playerPowers.canClimb)
+                {
+                    isClimbing = true;
+                }
+                else
+                {
+                    isClimbing = false;
+                    playerBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+                }
+            }
+            else
+            {
+                if (CheckOnClimbable() && playerPowers.canClimb)
+                {
+                    isClimbing = true;
+                }
+                else
+                {
+                    isClimbing = false;
+                }
+            }
         }
         else
         {
             isClimbing = false;
         }
 
+        // climbing check for hold
+        if (Input.GetKey(KeyCode.Space))
+        {
+            if (CheckOnClimbable() && playerPowers.canClimb)
+            {
+                isClimbing = true;
+            }
+            else
+            {
+                isClimbing = false;
+            }
+        }
+
+        // attack handling
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            Debug.Log("TEMP ATTACK");
+            int i = 1;
         }
 
         // attack distance rays
