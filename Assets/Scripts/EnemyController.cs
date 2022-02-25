@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class EnemyController : MonoBehaviour
     private PlayerController playerScript;
     public bool isGrappled;
     public bool needReset;
+    // movement speed when enemy will get up
     public float nonMovementSpeedThres = 0.5f;
 
     private void Start()
@@ -36,6 +38,8 @@ public class EnemyController : MonoBehaviour
             enemyBody.isKinematic = true;
             transform.rotation = new Quaternion(0, transform.rotation.y, 0, 0);
             transform.position = new Vector3(transform.position.x, transform.localScale.y / 2, transform.position.z);
+            gameObject.GetComponent<NavMeshAgent>().enabled = true;
+            gameObject.GetComponent<EnemyFollow>().enabled = true;
 
             needReset = false;
         }

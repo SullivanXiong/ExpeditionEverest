@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class GrapplingGun : MonoBehaviour
 {
@@ -122,6 +123,10 @@ public class GrapplingGun : MonoBehaviour
                 //Debug.Log(grappleHit.transform.gameObject);
 
                 GameObject enemy = grappleHit.transform.gameObject;
+                // disable navmesh transform
+                enemy.GetComponent<NavMeshAgent>().enabled = false;
+                enemy.GetComponent<EnemyFollow>().enabled = false;
+
                 enemy.GetComponent<Rigidbody>().isKinematic = false;
                 enemy.GetComponent<EnemyController>().isGrappled = true;
 
