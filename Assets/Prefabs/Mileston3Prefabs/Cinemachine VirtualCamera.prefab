@@ -175,6 +175,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AimCollisionFilter:
+  Damping: {x: 0.1, y: 0.5, z: 0.5}
+  ShoulderOffset: {x: 0.5, y: -0.4, z: 0}
+  VerticalArmLength: 0.4
+  CameraSide: 0.75
+  CameraDistance: 6
+  CameraCollisionFilter:
     serializedVersion: 2
     m_Bits: 1
   IgnoreTag: 
