@@ -672,7 +672,7 @@ MonoBehaviour:
   rayCastOrigin: {fileID: 8231069214195616361}
   player: {fileID: 8231069213828965704}
   grappleDistance: 40
-  enemyPullSpeed: 10
+  enemyPullSpeed: 50
   distancePullSeperate: 5
 --- !u!1 &8231069215479250145
 GameObject:
