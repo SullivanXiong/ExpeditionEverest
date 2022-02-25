@@ -43,9 +43,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 162e7317272fa48ce9849ad6128877d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-
   projectile: {fileID: 4230654007574863150, guid: 1686b441ea1424c69800628f580136d0, type: 3}
   speed: 20
+  --- !u!1 &8739428900682782949
   startPos: {x: 0, y: 0, z: 0}
   isGrappling: 0
   isGrounded: 0
