@@ -313,6 +313,7 @@ MonoBehaviour:
   grappleDistance: 40
   enemyPullSpeed: 50
   distancePullSeperate: 5
+  grappleDamage: 10
 --- !u!1 &6887818543098949581
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,8 +443,8 @@ MonoBehaviour:
   isClimbing: 0
   healthSlider: {fileID: 0}
   attackRefPoint: {fileID: 6887818543098949581}
-  attackRange: 5
-  attackMeleeDamage: 10
+  attackRange: 7
+  attackMeleeDamage: 25
   maxHealth: 100
   curHealth: 0
   movementSpeed: 15

@@ -124,7 +124,7 @@ public class PlayerController : MonoBehaviour
         // attack handling
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            int i = 1;
+            PlayerAttack();
         }
 
         // attack distance rays
@@ -136,14 +136,27 @@ public class PlayerController : MonoBehaviour
         Debug.DrawRay(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward * 1.5f, Color.blue);
     }
 
+    private void PlayerAttack()
+    {
+        RaycastHit attackHit;
+        if (Physics.Raycast(attackRefPoint.transform.position, attackRefPoint.transform.forward, out attackHit, attackRange))
+        {
+            if (attackHit.transform.gameObject.tag == "Enemy")
+            {
+                GameObject curEnemy = attackHit.transform.gameObject;
+                curEnemy.GetComponent<EnemyController>().curHealth -= attackMeleeDamage;
+            }
+        }
+    }
+
     private bool CheckOnClimbable()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out hit, 1.5f) ||
-            Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out hit, 1.5f) ||
-            Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward, out hit, 1.5f))
+        RaycastHit climbableHit;
+        if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out climbableHit, 1.5f) ||
+            Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out climbableHit, 1.5f) ||
+            Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward, out climbableHit, 1.5f))
         {
-            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
+            if (climbableHit.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
             {
                 return true;
             }
