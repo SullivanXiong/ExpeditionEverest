@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class GrapplingGun : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class GrapplingGun : MonoBehaviour
     public float grappleDistance = 100f;
     public float enemyPullSpeed = 10f;
     public float distancePullSeperate = 5f;
+
+    public float grappleDamage = 5f;
 
     void Start()
     {
@@ -35,7 +38,7 @@ public class GrapplingGun : MonoBehaviour
 
         if (Input.GetKey(KeyCode.Mouse1) && didHit == true)
         {
-            if (hitEnemy == true)
+            if (hitEnemy == true && !(grappleHit.transform == null))
             {
                 enemyCloseEnough = Vector3.Distance(grappleHit.transform.position, player.transform.position) <= distancePullSeperate;
 
@@ -51,6 +54,10 @@ public class GrapplingGun : MonoBehaviour
                     KillGrapple();
                 }
             }
+            else if (hitEnemy == true && (grappleHit.transform == null))
+            {
+                KillGrapple();
+            }
             else
             {
                 SetLrPos();
@@ -61,7 +68,7 @@ public class GrapplingGun : MonoBehaviour
         else
         {
             // can change this to just kill the grapple and enemy will keep their inertia
-            if (hitEnemy == true)
+            if (hitEnemy == true && !(grappleHit.transform == null))
             {
                 grappleHit.transform.GetComponent<Rigidbody>().velocity = new Vector3(0, Physics.gravity.y, 0);
                 grappleHit.transform.GetComponent<EnemyController>().isGrappled = false;
@@ -93,7 +100,7 @@ public class GrapplingGun : MonoBehaviour
     {
         lr.SetPosition(0, gunTip.transform.position);
 
-        if (hitEnemy == true)
+        if (hitEnemy == true && !(grappleHit.transform == null))
         {
             lr.SetPosition(1, grappleHit.transform.position);
         }
@@ -122,9 +129,8 @@ public class GrapplingGun : MonoBehaviour
                 //Debug.Log(grappleHit.transform.gameObject);
 
                 GameObject enemy = grappleHit.transform.gameObject;
-                enemy.GetComponent<Rigidbody>().isKinematic = false;
-                enemy.GetComponent<EnemyController>().isGrappled = true;
 
+                HandleEnemy(enemy);
                 PullAction(enemy);
 
                 hitEnemy = true;
@@ -150,6 +156,18 @@ public class GrapplingGun : MonoBehaviour
             didHit = false;
 
         }
+    }
+
+    void HandleEnemy(GameObject enemy)
+    {
+        enemy.GetComponent<EnemyController>().curHealth -= grappleDamage;
+
+        // disable navmesh transform
+        enemy.GetComponent<NavMeshAgent>().enabled = false;
+        enemy.GetComponent<EnemyFollow>().enabled = false;
+
+        enemy.GetComponent<Rigidbody>().isKinematic = false;
+        enemy.GetComponent<EnemyController>().isGrappled = true;
     }
 
     void PullAction(GameObject enemy)

@@ -20,7 +20,6 @@ public class PowerUp : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log(other);
         if (other.tag == "PowerUpGrappleHook")
         {
             canGrapple = true;

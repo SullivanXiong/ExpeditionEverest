@@ -10,9 +10,12 @@ public class PlayerController : MonoBehaviour
     private Vector3 movementInput;
     private Vector3 rotateInputX;
     private Rigidbody playerBody;
+    private PowerUp playerPowers;
+
     public Vector3 startPos;
-    public bool isGrappling;
     public bool isGrounded;
+    private GameObject curGround;
+    public bool isGrappling;
     public bool isClimbing;
     public Slider healthSlider;
 
@@ -45,6 +48,8 @@ public class PlayerController : MonoBehaviour
         Time.timeScale = 1;
 
         playerBody = gameObject.GetComponent<Rigidbody>();
+        playerPowers = gameObject.GetComponent<PowerUp>();
+
         startPos = transform.position;
         curHealth = maxHealth;
 
@@ -60,6 +65,8 @@ public class PlayerController : MonoBehaviour
         healthSlider.value = curHealth;
 
         // get inputs - more responsive in update
+        rotateInputX = new Vector3(0f, Input.GetAxisRaw("Mouse X"), 0f);
+
         if (isClimbing)
         {
             movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0f).normalized;
@@ -69,24 +76,55 @@ public class PlayerController : MonoBehaviour
             movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
         }
 
-        rotateInputX = new Vector3(0f, Input.GetAxisRaw("Mouse X"), 0f);
-
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && !CheckOnClimbable())
+        // jump handling
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            playerBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        }
-        else if (Input.GetKey(KeyCode.Space) && CheckOnClimbable())
-        {
-            isClimbing = true;
+            if (isGrounded)
+            {
+                if (CheckOnClimbable() && playerPowers.canClimb)
+                {
+                    isClimbing = true;
+                }
+                else
+                {
+                    isClimbing = false;
+                    playerBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+                }
+            }
+            else
+            {
+                if (CheckOnClimbable() && playerPowers.canClimb)
+                {
+                    isClimbing = true;
+                }
+                else
+                {
+                    isClimbing = false;
+                }
+            }
         }
         else
         {
             isClimbing = false;
         }
 
+        // climbing check for hold
+        if (Input.GetKey(KeyCode.Space))
+        {
+            if (CheckOnClimbable() && playerPowers.canClimb)
+            {
+                isClimbing = true;
+            }
+            else
+            {
+                isClimbing = false;
+            }
+        }
+
+        // attack handling
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            Debug.Log("TEMP ATTACK");
+            PlayerAttack();
         }
 
         // attack distance rays
@@ -98,14 +136,27 @@ public class PlayerController : MonoBehaviour
         Debug.DrawRay(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward * 1.5f, Color.blue);
     }
 
+    private void PlayerAttack()
+    {
+        RaycastHit attackHit;
+        if (Physics.Raycast(attackRefPoint.transform.position, attackRefPoint.transform.forward, out attackHit, attackRange))
+        {
+            if (attackHit.transform.gameObject.tag == "Enemy")
+            {
+                GameObject curEnemy = attackHit.transform.gameObject;
+                curEnemy.GetComponent<EnemyController>().curHealth -= attackMeleeDamage;
+            }
+        }
+    }
+
     private bool CheckOnClimbable()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out hit, 1.5f) ||
-            Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out hit, 1.5f) ||
-            Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward, out hit, 1.5f))
+        RaycastHit climbableHit;
+        if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out climbableHit, 1.5f) ||
+            Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out climbableHit, 1.5f) ||
+            Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward, out climbableHit, 1.5f))
         {
-            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
+            if (climbableHit.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
             {
                 return true;
             }
@@ -156,5 +207,25 @@ public class PlayerController : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawRay(attackRefPoint.transform.position, attackRefPoint.transform.forward * attackRange);
         Gizmos.color = Color.blue;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        // this code may be messy on the > 0 check
+        // may need to do more research/testing to see if this threshold is appropriate
+        // same with OnCollisionExit
+        if (collision.GetContact(0).normal.y > 0)
+        {
+            isGrounded = true;
+            curGround = collision.gameObject;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject == curGround)
+        {
+            isGrounded = false;
+        }
     }
 }
