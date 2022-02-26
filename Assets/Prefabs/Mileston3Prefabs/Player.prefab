@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8231069213828965711}
   - component: {fileID: 8231069213828965710}
   - component: {fileID: 8231069213828965709}
+  - component: {fileID: 780688151}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -91,12 +92,26 @@ MonoBehaviour:
   curHealth: 0
   movementSpeed: 15
   climbingSpeed: 7.5
-  lookSensitivityX: 8
-  lookSensitivityY: 3
+  lookSensitivityX: 4.5
+  lookSensitivityY: 1.5
   jumpForce: 35
   gravityMultiplier: 5
   grappleControlForce: 5
   respawnY: -50
+--- !u!114 &780688151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8231069213828965708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2471b007d3b5fb4fbc72d8fcb90e523, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canGrapple: 0
+  canClimb: 0
 --- !u!1 &8231069213871037478
 GameObject:
   m_ObjectHideFlags: 0
@@ -657,6 +672,8 @@ MonoBehaviour:
   rayCastOrigin: {fileID: 8231069214195616361}
   player: {fileID: 8231069213828965704}
   grappleDistance: 40
+  enemyPullSpeed: 10
+  distancePullSeperate: 5
 --- !u!1 &8231069215479250145
 GameObject:
   m_ObjectHideFlags: 0
