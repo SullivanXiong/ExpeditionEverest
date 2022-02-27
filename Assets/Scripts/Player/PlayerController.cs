@@ -151,6 +151,8 @@ public class PlayerController : MonoBehaviour
 
     private bool CheckOnClimbable()
     {
+        // suspected source of stuttering climbing problem, flickering between returning true and returning false when climbing W + D or W + A and rotating
+        // in strafing direction
         RaycastHit climbableHit;
         if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out climbableHit, 1.5f) ||
             Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out climbableHit, 1.5f) ||
