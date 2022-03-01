@@ -1186,7 +1186,10 @@ MonoBehaviour:
   grappleDistance: 40
   enemyPullSpeed: 50
   distancePullSeperate: 5
+  cooldownSlider: {fileID: 0}
+  cooldownPullEnemyMax: 0
   grappleDamage: 10
+  onCooldown: 0
 --- !u!1 &1646466209219941836
 GameObject:
   m_ObjectHideFlags: 0
@@ -1873,8 +1876,7 @@ GameObject:
   - component: {fileID: 4233353621230863716}
   - component: {fileID: 3599559300942667743}
   - component: {fileID: 3599559300942667740}
-  - component: {fileID: 3599559300942667738}
-  - component: {fileID: 3599559300942667741}
+  - component: {fileID: 516694982620823372}
   m_Layer: 0
   m_Name: HikerModel
   m_TagString: Untagged
@@ -1931,7 +1933,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.1, y: 1, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0.15}
---- !u!114 &3599559300942667738
+--- !u!114 &516694982620823372
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1940,41 +1942,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 3599559300942667742}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7032d4684eafb234c8699782066fb6da, type: 3}
+  m_Script: {fileID: 11500000, guid: b69abba98ca9fb14cb56671819a3a51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPos: {x: 0, y: 0, z: 0}
-  isGrounded: 0
-  isGrappling: 0
-  isClimbing: 0
-  healthSlider: {fileID: 0}
-  attackRefPoint: {fileID: 1646466209219941836}
-  attackRange: 5
-  attackMeleeDamage: 10
-  maxHealth: 100
-  curHealth: 0
-  movementSpeed: 15
-  climbingSpeed: 7.5
-  lookSensitivityX: 5
-  lookSensitivityY: 5
-  jumpForce: 10
-  gravityMultiplier: 1
-  grappleControlForce: 5
-  respawnY: -50
---- !u!114 &3599559300942667741
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3599559300942667742}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2471b007d3b5fb4fbc72d8fcb90e523, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canGrapple: 1
-  canClimb: 1
+  startedDialogue: 0
+  dialogueManager: {fileID: 0}
+  sentences:
+  - Hello World!
+  - I'm a Hiker and I'm lost.
+  - Will you help me get home?
+  name: Hiker
 --- !u!1 &3658276376866920888
 GameObject:
   m_ObjectHideFlags: 0
