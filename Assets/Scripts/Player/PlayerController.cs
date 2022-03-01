@@ -221,6 +221,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.layer == LayerMask.NameToLayer("Kills"))
         {
             transform.position = startPos;
+            curHealth = maxHealth;
         }
         else if (collision.GetContact(0).normal.y > 0.05)
         {

@@ -184,7 +184,7 @@ public class GrapplingGun : MonoBehaviour
 
         // disable navmesh transform
         enemy.GetComponent<NavMeshAgent>().enabled = false;
-        enemy.GetComponent<EnemyFollow>().enabled = false;
+        enemy.GetComponent<NavMeshController>().enabled = false;
 
         enemy.GetComponent<Rigidbody>().isKinematic = false;
         enemy.GetComponent<EnemyController>().isGrappled = true;
