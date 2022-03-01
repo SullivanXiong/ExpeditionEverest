@@ -8,7 +8,7 @@ public class Soldier : MonoBehaviour
 {
     CoverManager coverManager;
 
-    Soldier curTarget;
+    Soldier1 curTarget;
     public Team myTeam;
     public Vitals myVitals;
 
@@ -135,7 +135,7 @@ public class Soldier : MonoBehaviour
         else
         {
             //find new target
-            Soldier bestTarget = GetNewTarget();
+            Soldier1 bestTarget = GetNewTarget();
 
             if(bestTarget != null)
             {
@@ -149,7 +149,7 @@ public class Soldier : MonoBehaviour
         {
             if (currentPath != null)
             {
-                Soldier alternativeTarget = GetNewTarget();
+                Soldier1 alternativeTarget = GetNewTarget();
 
                 if(alternativeTarget != null && alternativeTarget != curTarget)
                 {
@@ -215,7 +215,7 @@ public class Soldier : MonoBehaviour
             //if the target escapes during combat
             if (!canISeeTheTarget(curTarget))
             {
-                Soldier alternativeTarget = GetNewTarget();
+                Soldier1 alternativeTarget = GetNewTarget();
 
                 if(alternativeTarget == null)
                 {
@@ -282,7 +282,7 @@ public class Soldier : MonoBehaviour
     {
         if(currentPath != null)
         {
-            Soldier alternativeTarget = GetNewTarget();
+            Soldier1 alternativeTarget = GetNewTarget();
 
             if(currentPath.ReachedEndNode() || alternativeTarget != null)
             { //if we reached the end, we'll start looking for a target
@@ -322,13 +322,13 @@ public class Soldier : MonoBehaviour
         }
     }
 
-    Soldier GetNewTarget()
+    Soldier1 GetNewTarget()
     {
-        Soldier[] allSoldiers = GameObject.FindObjectsOfType<Soldier>();
-        Soldier bestTarget = null;
+        Soldier1[] allSoldiers = GameObject.FindObjectsOfType<Soldier1>();
+        Soldier1 bestTarget = null;
         for (int i = 0; i < allSoldiers.Length; i++)
         {
-            Soldier curSoldier = allSoldiers[i];
+            Soldier1 curSoldier = allSoldiers[i];
 
             //only select current soldier as target, if we are not on the same team and if it got health left
             if (curSoldier.GetComponent<Team>().getTeamNumber() != myTeam.getTeamNumber() && curSoldier.GetComponent<Vitals>().getCurHealth() > 0)
@@ -356,7 +356,7 @@ public class Soldier : MonoBehaviour
     }
 
 
-    bool canISeeTheTarget(Soldier target)
+    bool canISeeTheTarget(Soldier1 target)
     {
         bool canSeeIt = false;
 
