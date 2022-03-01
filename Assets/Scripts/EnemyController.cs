@@ -85,4 +85,13 @@ public class EnemyController : MonoBehaviour
         enemyBody.AddForce(Vector3.down * -Physics.gravity.y * (playerScript.gravityMultiplier - 1));
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Kills"))
+        {
+            Destroy(enemyUI);
+            Destroy(gameObject);
+        }
+    }
+
 }

@@ -176,6 +176,7 @@ public class GrapplingGun : MonoBehaviour
             didHit = false;
 
         }
+        Debug.Log(grappleHit.transform);
     }
 
     void HandleEnemy(GameObject enemy)
