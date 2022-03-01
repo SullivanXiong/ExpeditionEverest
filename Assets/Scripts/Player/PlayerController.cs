@@ -151,6 +151,8 @@ public class PlayerController : MonoBehaviour
 
     private bool CheckOnClimbable()
     {
+        // suspected source of stuttering climbing problem, flickering between returning true and returning false when climbing W + D or W + A and rotating
+        // in strafing direction
         RaycastHit climbableHit;
         if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out climbableHit, 1.5f) ||
             Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out climbableHit, 1.5f) ||
@@ -214,7 +216,11 @@ public class PlayerController : MonoBehaviour
         // this code may be messy on the > 0 check
         // may need to do more research/testing to see if this threshold is appropriate
         // same with OnCollisionExit
-        if (collision.GetContact(0).normal.y > 0)
+        // UPDATE: 0.05 felt more appropriate
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Kills")) {
+            transform.position = startPos;
+        }
+        else if (collision.GetContact(0).normal.y > 0.05)
         {
             isGrounded = true;
             curGround = collision.gameObject;
