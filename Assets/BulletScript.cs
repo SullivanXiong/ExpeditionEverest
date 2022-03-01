@@ -32,6 +32,7 @@ public class BulletScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("BulletHit");
         if (other.gameObject.tag == "Player")
         {
             other.gameObject.GetComponent<PlayerController>().curHealth -= bulletDamage;
