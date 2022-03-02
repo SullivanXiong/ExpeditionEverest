@@ -92,6 +92,10 @@ PrefabInstance:
       value: ClimbingPickPowerUp Variant
       objectReference: {fileID: 0}
     - target: {fileID: 8488780953168635423, guid: ebda93b27f0c4ec4ab748123b6951345, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488780953168635423, guid: ebda93b27f0c4ec4ab748123b6951345, type: 3}
       propertyPath: m_TagString
       value: PowerUpClimbingPick
       objectReference: {fileID: 0}

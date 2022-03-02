@@ -571,8 +571,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canGrapple: 0
   canClimb: 0
-  grappleImage: {fileID: 0}
-  pickImage: {fileID: 0}
+  grappleImage: {fileID: 6135081348482445178, guid: 1c0aa78a0f1c57049b5ffa9f2b9aa3ad, type: 3}
+  pickImage: {fileID: 7226267785899206244, guid: 6019c2a0667843744b3ff9bf96642dae, type: 3}
 --- !u!1 &9093735572162119187
 GameObject:
   m_ObjectHideFlags: 0
