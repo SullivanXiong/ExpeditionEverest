@@ -93,6 +93,11 @@ public class GrapplingGun : MonoBehaviour
     {
         lr.SetPosition(0, gunTip.transform.position);
 
+        if (Input.GetKey(KeyCode.Mouse0))
+        {
+            Ascend();
+        }
+
         if (hitEnemy == true)
         {
             lr.SetPosition(1, grappleHit.transform.position);
@@ -101,6 +106,15 @@ public class GrapplingGun : MonoBehaviour
         {
             lr.SetPosition(1, grappleHit.point);
         }
+    }
+
+    private void Ascend()
+    {
+        Vector3 moveVector = (grappleHit.point - gunTip.transform.position).normalized;
+        player.GetComponent<Rigidbody>().velocity += moveVector * 0.14f;
+
+        float distanceFromPoint = Vector3.Distance(player.transform.position, grappleHit.point);
+        joint.maxDistance = distanceFromPoint * 0.8f;
     }
 
     private void ResetLrPos()
@@ -133,7 +147,6 @@ public class GrapplingGun : MonoBehaviour
             else
             {
                 CreateJointSwing();
-
                 hitEnemy = false;
                 SetLrPos();
             }
