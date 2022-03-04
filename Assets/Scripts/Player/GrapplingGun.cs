@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class GrapplingGun : MonoBehaviour
 {
@@ -17,8 +18,12 @@ public class GrapplingGun : MonoBehaviour
     public float grappleDistance = 100f;
     public float enemyPullSpeed = 10f;
     public float distancePullSeperate = 5f;
+    public Slider cooldownSlider;
+    public float cooldownPullEnemyMax;
+    private float cooldownTrack;
 
     public float grappleDamage = 5f;
+    public bool onCooldown;
 
     void Start()
     {
@@ -27,11 +32,25 @@ public class GrapplingGun : MonoBehaviour
 
         playerScript = player.GetComponent<PlayerController>();
         playerPowers = player.GetComponent<PowerUp>();
+        onCooldown = false;
+        cooldownTrack = cooldownPullEnemyMax;
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse1) && playerPowers.canGrapple)
+        if (onCooldown)
+        {
+            cooldownTrack -= Time.deltaTime;
+        }
+        if (cooldownTrack <= 0)
+        {
+            cooldownTrack = cooldownPullEnemyMax;
+            onCooldown = false;
+        }
+
+        cooldownSlider.value = cooldownTrack / cooldownPullEnemyMax * 100;
+
+        if (Input.GetKeyDown(KeyCode.Mouse1) && playerPowers.canGrapple && !onCooldown)
         {
             TryGrapple();
         }
@@ -121,7 +140,6 @@ public class GrapplingGun : MonoBehaviour
         if (Physics.Raycast(rayCastOrigin.transform.position, rayCastOrigin.forward, out grappleHit, grappleDistance)
             && grappleHit.transform.gameObject.layer == LayerMask.NameToLayer("Grappleable")) // grapple hits
         {
-
             if (grappleHit.transform.tag == "Enemy")
             {
                 // Note this raycast may be hitting something of the enemy that doesnt have rigidbody attached, could be causing
@@ -134,6 +152,8 @@ public class GrapplingGun : MonoBehaviour
                 PullAction(enemy);
 
                 hitEnemy = true;
+                onCooldown = true;
+
                 SetLrPos();
             }
             else
@@ -164,7 +184,7 @@ public class GrapplingGun : MonoBehaviour
 
         // disable navmesh transform
         enemy.GetComponent<NavMeshAgent>().enabled = false;
-        enemy.GetComponent<EnemyFollow>().enabled = false;
+        enemy.GetComponent<NavMeshController>().enabled = false;
 
         enemy.GetComponent<Rigidbody>().isKinematic = false;
         enemy.GetComponent<EnemyController>().isGrappled = true;
