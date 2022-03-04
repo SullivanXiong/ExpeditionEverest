@@ -124,11 +124,7 @@ public class GrapplingGun : MonoBehaviour
             Ascend();
         }
 
-<<<<<<< HEAD
         if (hitEnemy == true && !(grappleHit.transform == null))
-=======
-        if (hitEnemy == true)
->>>>>>> a0af45b9fc61b519e7c7fd8b2a10be2d245df830
         {
             lr.SetPosition(1, grappleHit.transform.position);
         }
