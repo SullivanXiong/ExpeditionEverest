@@ -6,9 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/Milestone1Scenes/SullivanPrototype.unity
+    path: Assets/Scenes/User Scenes/Milestone1Scenes/SullivanPrototype.unity
     guid: 7994c4f0c9796f644b7b391de9c4b593
   - enabled: 1
-    path: Assets/Scenes/NickScenes/Nick_Level_1.unity
+    path: Assets/Scenes/Level Scenes/Level1.unity
     guid: b45c419e89da75c4ab7c6d8a1307c2b2
   m_configObjects: {}
