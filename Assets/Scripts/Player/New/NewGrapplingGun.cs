@@ -80,6 +80,7 @@ public class NewGrapplingGun : MonoBehaviour
 
     void ContinueGrapple()
     {
+        int i = 0;
         // switch player to rigidbody if they are a character controller that is not grounded
         if (playerController.isCharControllerOn && !playerController.isRigidBodyOn && !playerController.isCharControllerGrounded)
         {

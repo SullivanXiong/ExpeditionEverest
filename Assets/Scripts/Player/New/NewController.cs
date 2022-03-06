@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NewController : MonoBehaviour
 {
@@ -18,12 +19,38 @@ public class NewController : MonoBehaviour
     [Header("Reference Objects")]
     public GameObject camFollowTarget;
     public GameObject mainCamera;
+    public Slider healthSlider;
 
     // internal tracking variables
     private Vector3 movementVector;
     private Vector2 turnVector;
-    private Vector3 velocityVector;
+    private Vector3 charContrYVelVector;
 
+    [Header("Movement Variables")]
+    public float movementSpeed = 6f;
+    public float jumpHeight = 5f;
+    public float grappleControlForce = 5f;
+    public float climbingSpeed = 3f;
+
+    [Header("Action Variables")]
+    public float climbingReach = 5f;
+
+    [Header("Combat Variables")]
+    public float maxHealth = 100f;
+    //[System.NonSerialized]
+    public float curHealth;
+
+    [Header("Character Controller Physics")]
+    public float gravity = -9.81f;
+    public Vector3 lastSwingReleaseVelocity;
+
+    [Header("Sensitivity")]
+    public float xSensitivity = 1f;
+    public float ySensitivity = 1f;
+    public float yClamping = 85f;
+
+    // state tracking variables
+    [Header("DO NOT EDIT (only for visibility)")]
     public bool isRigidBodyOn;
     public bool isCharControllerOn;
     public bool isRBGrounded;
@@ -33,30 +60,13 @@ public class NewController : MonoBehaviour
     public bool isClimbing;
     public bool isGrappling;
 
-    [Header("Movement Variables")]
-    public float movementSpeed = 6f;
-    public float jumpHeight = 5f;
-    public float grappleControlForce = 5f;
-
-    [Header("Action Variables")]
-    public float climbingReach = 5f;
-
-    [Header("Character Controller Physics")]
-    public float gravity = -9.81f;
-    [System.NonSerialized]
-    public Vector3 lastSwingReleaseVelocity;
-
-    [Header("Sensitivity")]
-    public float xSensitivity = 1f;
-    public float ySensitivity = 1f;
-    public float yClamping = 85f;
-
-
-    // Start is called before the first frame update
     void Start()
     {
         // lock cursor
         Cursor.lockState = CursorLockMode.Locked;
+
+        // set player health to max
+        curHealth = maxHealth;
 
         // get reference scripts
         charController = gameObject.GetComponent<CharacterController>();
@@ -74,35 +84,44 @@ public class NewController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // deactivate rigidbody when we hit the ground
-        if (isRigidBodyOn && isRBGrounded) // AND on the ground
+        // update health slider value
+        healthSlider.value = curHealth;
+
+        // deactivate rigidbody when we hit the ground (if we are a rigidbody
+        if (isRigidBodyOn && isRBGrounded && !isCharControllerOn) // AND on the ground
         {
             // switch back to char controller
             SwitchToCharController();
         }
 
-        // get movement inputs
-        movementVector = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
+        if (isClimbing)
+        {
+            // adjusts our movement input for climbing
+            movementVector = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0f).normalized;
+        }
+        else
+        {
+            // get normal movement inputs
+            movementVector = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical")).normalized;
+        }
 
         // get rotation inputs
         turnVector.x += Input.GetAxisRaw("Mouse X") * xSensitivity * Time.deltaTime;
         turnVector.y += Input.GetAxisRaw("Mouse Y") * ySensitivity * Time.deltaTime;
         turnVector.y = Mathf.Clamp(turnVector.y, -yClamping, yClamping);
 
-        isClimbing = CheckFacingClimbable();
-        //Debug.Log(isClimbing);
-
         if (isCharControllerOn && !isRigidBodyOn)
         {
-            if (isCharControllerGrounded && velocityVector.y < 0)
+            if (isCharControllerGrounded && charContrYVelVector.y < 0)
             {
                 // this must be 2f
-                velocityVector.y = -2f;
+                charContrYVelVector.y = -2f;
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) && isPlayerGrounded)
+            // the is climbing check prevents us from jumping when we want to climb
+            if (Input.GetKeyDown(KeyCode.Space) && (isPlayerGrounded || isClimbing))
             {
-                velocityVector.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
+                charContrYVelVector.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
             }
 
             MovePlayerCharController();
@@ -113,12 +132,11 @@ public class NewController : MonoBehaviour
 
         // this has to go here
         isPlayerGrounded = UpdatePlayerGrounded();
-        //Debug.Log(isPlayerGrounded);
-
     }
 
     public void FixedUpdate()
     {
+
         // physics engine is already applying a force of -9.81, we need to match 
         // the char controller gravity, just some math, 'gravity' is our own custom gravity
         playerBody.AddForce(Vector3.up * (gravity - Physics.gravity.y));
@@ -133,11 +151,13 @@ public class NewController : MonoBehaviour
                 }
                 else
                 {
+                    // I'm not a fan of the current air control, fix this.
                     // just for holding our movement direction adjusted for the rotation of the character
                     Vector3 movVectorTransformed = transform.TransformDirection(movementVector);
-                    playerBody.velocity = new Vector3(lastSwingReleaseVelocity.x + (movVectorTransformed.x * movementSpeed), playerBody.velocity.y, 
-                                                        lastSwingReleaseVelocity.z + (movVectorTransformed.z * movementSpeed));
-                    Debug.Log(playerBody.velocity);
+                    //playerBody.velocity = new Vector3(lastSwingReleaseVelocity.x + (movVectorTransformed.x * movementSpeed), playerBody.velocity.y, 
+                    //                                    lastSwingReleaseVelocity.z + (movVectorTransformed.z * movementSpeed));
+                    //Debug.Log(playerBody.velocity);
+                    playerBody.velocity = new Vector3((movVectorTransformed.x * movementSpeed), playerBody.velocity.y, (movVectorTransformed.z * movementSpeed));
                 }
             }
             RotatePlayer();
@@ -153,7 +173,7 @@ public class NewController : MonoBehaviour
         charController.enabled = false;
         playerBodyCollider.enabled = true;
         playerBody.isKinematic = false;
-        playerBody.velocity = new Vector3(capturedMovement.x, velocityVector.y, capturedMovement.z);
+        playerBody.velocity = new Vector3(capturedMovement.x, charContrYVelVector.y, capturedMovement.z);
 
         // edit tracking bools
         isCharControllerOn = false;
@@ -162,7 +182,7 @@ public class NewController : MonoBehaviour
 
         // clear characterController velocity vector - prevents player from trying to complete the jump when switching
         // back to charcontroller
-        velocityVector = new Vector3(0f, 0f, 0f);
+        charContrYVelVector = new Vector3(0f, 0f, 0f);
 
         //edit camera mode to fixed update to smooth
         cameraBrain.m_UpdateMethod = Cinemachine.CinemachineBrain.UpdateMethod.FixedUpdate;
@@ -187,20 +207,32 @@ public class NewController : MonoBehaviour
     void MovePlayerCharController()
     {
         // move handling
-        charController.Move(transform.TransformDirection(movementVector) * movementSpeed * Time.deltaTime);
-
-        // apply gravity
-        velocityVector.y += gravity * Time.deltaTime;
-        charController.Move(velocityVector * Time.deltaTime);
+        if (isClimbing)
+        {
+            charController.Move(transform.TransformDirection(movementVector) * climbingSpeed * Time.deltaTime);
+        }
+        else
+        {
+            charController.Move(transform.TransformDirection(movementVector) * movementSpeed * Time.deltaTime);
+        }
+        
+        if (!isClimbing) // do not apply gravity if climbing
+        {
+            //apply gravity
+            charContrYVelVector.y += gravity * Time.deltaTime;
+            charController.Move(charContrYVelVector * Time.deltaTime);
+        }
 
         // this NEEDS to go here for some reason, check if we're grounded
         isCharControllerGrounded = charController.isGrounded;
     }
 
+    // this will rotate the view by proxy
     void RotatePlayer()
     {
-        // rotation handling
-        transform.localRotation = Quaternion.Euler(transform.localRotation.y, turnVector.x, 0);
+        // only allow rotation of player horizontally
+        gameObject.transform.localRotation = Quaternion.Euler(transform.localRotation.y, turnVector.x, 0);
+        // only camera will rotate vertically
         camFollowTarget.transform.localRotation = Quaternion.Euler(-turnVector.y, camFollowTarget.transform.localRotation.x, 0);
     }
 
@@ -208,16 +240,20 @@ public class NewController : MonoBehaviour
     {
         // suspected source of stuttering climbing problem, flickering between returning true and returning false when climbing W + D or W + A and rotating
         // in strafing direction
+        // have to raycast from either character controller or capsule collider depending on if charController or rb. This prevents raycast from hitting self
         RaycastHit climbableHit;
         if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out climbableHit, climbingReach) ||
             Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out climbableHit, climbingReach) ||
-            Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward, out climbableHit, climbingReach))
+            // playerBodyCollider.radius adjustment to prevent raycast from hitting self
+            Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z + (playerBodyCollider.radius * 2)), transform.forward, out climbableHit, climbingReach - (playerBodyCollider.radius * 2)))
         {
+            Debug.Log(climbableHit.transform);
             if (climbableHit.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
             {
                 return true;
             }
         }
+        Debug.Log("None");
         return false;
     }
 
@@ -242,26 +278,18 @@ public class NewController : MonoBehaviour
     // i.e. we only need this when a rigidbody is in the air and want to check if it hit the ground
     private void OnCollisionEnter(Collision collision)
     {
-        // this code may be messy on the > 0 check
-        // may need to do more research/testing to see if this threshold is appropriate
-        // same with OnCollisionExit
-        // UPDATE: 0.05 felt more appropriate
-        //if (collision.gameObject.layer == LayerMask.NameToLayer("Kills"))
-        //{
-        //    transform.position = startPos;
-        //    curHealth = maxHealth;
-        //}
         if (collision.GetContact(0).normal.y > 0.05)
         {
             isRBGrounded = true;
         }
     }
 
+    // showing all raycasts on player
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward * climbingReach);
         Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward * climbingReach);
-        Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.forward * climbingReach);
+        Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y, transform.position.z + 1), transform.forward * (climbingReach - 1));
     }
 }

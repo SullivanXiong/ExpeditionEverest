@@ -7,6 +7,7 @@ public class PlayerAnimationStateController : MonoBehaviour
     [Header("GameObject References")]
     public GameObject player;
 
+
     // script references
     private NewController playerController;
     private Animator playerAnimator;
@@ -26,11 +27,14 @@ public class PlayerAnimationStateController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        movementVector = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
+
         CheckMoving();
         CheckInAir();
         CheckClimbing();
     }
 
+    // this is a little glitchy right now
     void CheckClimbing()
     {
         if (playerController.isClimbing)
@@ -40,11 +44,21 @@ public class PlayerAnimationStateController : MonoBehaviour
                 playerAnimator.SetBool("isClimbing", true);
                 checkedClimbing = true;
             }
+
+            if (movementVector.magnitude > 0)
+            {
+                playerAnimator.speed = 1;
+            }
+            else
+            {
+                playerAnimator.speed = 0;
+            }
         }
         else
         {
             playerAnimator.SetBool("isClimbing", false);
             checkedClimbing = false;
+            playerAnimator.speed = 1;
         }
     }
 
@@ -67,7 +81,6 @@ public class PlayerAnimationStateController : MonoBehaviour
 
     void CheckMoving()
     {
-        movementVector = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
         if (movementVector.magnitude > 0)
         {
             playerAnimator.SetBool("isMoving", true);
