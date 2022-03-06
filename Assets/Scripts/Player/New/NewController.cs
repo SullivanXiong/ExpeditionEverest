@@ -62,6 +62,8 @@ public class NewController : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1;
+
         // lock cursor
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -94,6 +96,22 @@ public class NewController : MonoBehaviour
             SwitchToCharController();
         }
 
+        if (Input.GetKey(KeyCode.Space) && CheckFacingClimbable() && !isGrappling)
+        {
+            if (isRigidBodyOn && !isCharControllerOn)
+            {
+                SwitchToCharController();
+            }
+            isClimbing = true;
+            // have to reset charControl jump velocity 
+            charContrYVelVector = new Vector3(0f, 0f, 0f);
+        }
+        else
+        {
+            isClimbing = false;
+        }
+        Debug.Log(isClimbing);
+
         if (isClimbing)
         {
             // adjusts our movement input for climbing
@@ -119,7 +137,7 @@ public class NewController : MonoBehaviour
             }
 
             // the is climbing check prevents us from jumping when we want to climb
-            if (Input.GetKeyDown(KeyCode.Space) && (isPlayerGrounded || isClimbing))
+            if (Input.GetKeyDown(KeyCode.Space) && isPlayerGrounded && !isClimbing)
             {
                 charContrYVelVector.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
             }
@@ -240,20 +258,20 @@ public class NewController : MonoBehaviour
     {
         // suspected source of stuttering climbing problem, flickering between returning true and returning false when climbing W + D or W + A and rotating
         // in strafing direction
-        // have to raycast from either character controller or capsule collider depending on if charController or rb. This prevents raycast from hitting self
         RaycastHit climbableHit;
-        if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out climbableHit, climbingReach) ||
-            Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out climbableHit, climbingReach) ||
-            // playerBodyCollider.radius adjustment to prevent raycast from hitting self
-            Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z + (playerBodyCollider.radius * 2)), transform.forward, out climbableHit, climbingReach - (playerBodyCollider.radius * 2)))
+
+        bool topRay = Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out climbableHit, climbingReach);
+        bool middleRay = Physics.Raycast(transform.position + transform.TransformDirection(new Vector3(0f, 0f, (playerBodyCollider.radius * 2))), transform.forward, out climbableHit, climbingReach - (playerBodyCollider.radius * 2));
+        bool bottomRay = Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out climbableHit, climbingReach);
+
+        if (topRay || middleRay || bottomRay)
         {
-            Debug.Log(climbableHit.transform);
+            //Debug.Log(climbableHit.transform);
             if (climbableHit.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
             {
                 return true;
             }
         }
-        Debug.Log("None");
         return false;
     }
 
@@ -290,6 +308,6 @@ public class NewController : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward * climbingReach);
         Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward * climbingReach);
-        Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y, transform.position.z + 1), transform.forward * (climbingReach - 1));
+        Gizmos.DrawRay(transform.position + transform.TransformDirection(new Vector3(0f, 0f, 1f)), transform.forward * (climbingReach - 1));
     }
 }
