@@ -18,12 +18,6 @@ public class PowerUp : MonoBehaviour
         pickImage.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "PowerUpGrappleHook")
