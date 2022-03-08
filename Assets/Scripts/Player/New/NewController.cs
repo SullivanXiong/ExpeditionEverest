@@ -20,7 +20,20 @@ public class NewController : MonoBehaviour
     [Header("Reference Objects")]
     public GameObject camFollowTarget;
     public GameObject mainCamera;
+    public Camera mainCameraCam;
     public Slider healthSlider;
+
+    [Header("Distance of Camera to Reference - Check ThirdPersonCamera under 'Body'")]
+    public float cameraDistance = 8f;
+
+    [Header("Animation References")]
+    public AnimationClip attackAnimation;
+
+    [Header("Animation Variables (MUST MATCH THOSE IN ANIMATION CONTROLLER) - DETERMINES ATTACK COOLDOWN")]
+    public float attackSpeedMultiplier = 1.5f;
+    public float attackTransitionTime = 0.1f;
+    private float attackTimeTotal;
+    public bool canAttack;
 
     // internal tracking variables
     private Vector3 movementVector;
@@ -30,11 +43,13 @@ public class NewController : MonoBehaviour
     [Header("Movement Variables")]
     public float movementSpeed = 6f;
     public float jumpHeight = 5f;
+    public float jumpHeightFromWall = 3f;
     public float grappleControlForce = 5f;
     public float climbingSpeed = 3f;
 
     [Header("Action Variables")]
     public float climbingReach = 5f;
+    public float attackReach = 5f;
 
     [Header("Combat Variables")]
     public float maxHealth = 100f;
@@ -60,7 +75,12 @@ public class NewController : MonoBehaviour
 
     public bool isGodMode;
     public bool isClimbing;
+    // are we attempting to move away from the wall after climbing down?
+    private bool isMovingAwayFromWall;
     public bool isGrappling;
+
+    public bool canGrapple;
+    public bool canClimb;
 
     void Start()
     {
@@ -77,6 +97,10 @@ public class NewController : MonoBehaviour
         playerBody = gameObject.GetComponent<Rigidbody>();
         playerBodyCollider = gameObject.GetComponent<CapsuleCollider>();
         cameraBrain = mainCamera.GetComponent<Cinemachine.CinemachineBrain>();
+
+        // get total attack animation time, this will determine our attack cooldown
+        attackTimeTotal = (attackAnimation.length / attackSpeedMultiplier) + attackTransitionTime;
+        canAttack = true;
 
         // turn to char controller state
         SwitchToCharController();
@@ -98,21 +122,11 @@ public class NewController : MonoBehaviour
             SwitchToCharController();
         }
 
-        if (Input.GetKey(KeyCode.Space) && CheckFacingClimbable() && !isGrappling)
+        if (canClimb) // only update if we are ALLOWED to climb (defaulted to false)
         {
-            if (isRigidBodyOn && !isCharControllerOn)
-            {
-                SwitchToCharController();
-            }
-            isClimbing = true;
-            // have to reset charControl jump velocity 
-            charContrYVelVector = new Vector3(0f, 0f, 0f);
+            // do all of our climbing checks
+            HandleClimbing();
         }
-        else
-        {
-            isClimbing = false;
-        }
-        Debug.Log(isClimbing);
 
         if (isClimbing)
         {
@@ -137,21 +151,39 @@ public class NewController : MonoBehaviour
                 // this must be 2f
                 charContrYVelVector.y = -2f;
             }
-
             // the is climbing check prevents us from jumping when we want to climb
             if (Input.GetKeyDown(KeyCode.Space) && isGodMode)
             {
                 charContrYVelVector.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
             }
+            // regular jumping for when we are on the ground
             else if (Input.GetKeyDown(KeyCode.Space) && isPlayerGrounded && !isClimbing)
             {
                 charContrYVelVector.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
+            }
+            // jumping from a wall
+            else if (Input.GetKeyDown(KeyCode.Space) && isClimbing)
+            {
+                isClimbing = false;
+                charContrYVelVector.y += Mathf.Sqrt(jumpHeightFromWall * -3.0f * gravity);
             }
 
             MovePlayerCharController();
             // maybe this needs to be a different method for when our player is a rigidbody
             // too lazy to try right now
-            RotatePlayer();
+            if (isClimbing)
+            {
+                RotateCameraOnly();
+            }
+            else
+            {
+                RotatePlayer();
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Mouse0) && canAttack && !isClimbing)
+        {
+            StartCoroutine(TryAttack());
         }
 
         // this has to go here
@@ -161,6 +193,144 @@ public class NewController : MonoBehaviour
         {
             SceneManager.LoadScene("Level1");
         }
+    }
+
+    void HandleClimbing()
+    {
+        ClimbableHitInfo climbableInfo = CheckFacingClimbable();
+
+        if (isMovingAwayFromWall)
+        {
+            if (!climbableInfo.hitClimbable)
+            {
+                isMovingAwayFromWall = false;
+            }
+        }
+        else
+        {
+            if (climbableInfo.hitClimbable && !isGrappling)
+            {
+                if (isRigidBodyOn && !isCharControllerOn)
+                {
+                    SwitchToCharController();
+                }
+
+                // set player rotation to the normal of the climbable hit
+                //Debug.Log(climbableInfo.climbableNormal);
+                transform.forward = -climbableInfo.climbableNormal;
+
+                // have to reset charControl jump velocity 
+                charContrYVelVector = new Vector3(0f, 0f, 0f);
+
+                isClimbing = true;
+            }
+            else
+            {
+                isClimbing = false;
+            }
+        }
+    }
+
+    private struct ClimbableHitInfo
+    {
+        public bool hitClimbable;
+        public Vector3 climbableNormal;
+    }
+
+    private ClimbableHitInfo CheckFacingClimbable()
+    {
+        // suspected source of stuttering climbing problem, flickering between returning true and returning false when climbing W + D or W + A and rotating
+        // in strafing direction
+        RaycastHit climbableHitTop;
+        RaycastHit climbableHitMiddle;
+        RaycastHit climbableHitBottom;
+
+        bool topRay = Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out climbableHitTop, climbingReach);
+        bool middleRay = Physics.Raycast(transform.position + transform.TransformDirection(new Vector3(0f, 0f, (playerBodyCollider.radius * 2))), transform.forward, out climbableHitMiddle, climbingReach - (playerBodyCollider.radius * 2));
+        bool bottomRay = Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out climbableHitBottom, climbingReach);
+
+        if (topRay && (middleRay || bottomRay))
+        {
+            if (topRay && climbableHitTop.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
+            {
+                Debug.DrawRay(climbableHitTop.point, climbableHitTop.normal, Color.cyan);
+
+                ClimbableHitInfo topInfo = new ClimbableHitInfo();
+                topInfo.hitClimbable = true;
+                topInfo.climbableNormal = climbableHitTop.normal;
+
+                return topInfo;
+            }
+            else if (middleRay && climbableHitMiddle.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
+            {
+                Debug.DrawRay(climbableHitMiddle.point, climbableHitMiddle.normal, Color.cyan);
+
+                ClimbableHitInfo middleInfo = new ClimbableHitInfo();
+                middleInfo.hitClimbable = true;
+                middleInfo.climbableNormal = climbableHitMiddle.normal;
+
+                return middleInfo;
+            }
+            else if (bottomRay && climbableHitBottom.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
+            {
+                Debug.DrawRay(climbableHitBottom.point, climbableHitBottom.normal, Color.cyan);
+
+                ClimbableHitInfo bottomInfo = new ClimbableHitInfo();
+                bottomInfo.hitClimbable = true;
+                bottomInfo.climbableNormal = climbableHitBottom.normal;
+
+                return bottomInfo;
+            }
+        }
+        // ledge checking, if we weren't already climbing, do not check for ledge until our head reaches the wall
+        else if (!topRay && (middleRay || bottomRay) && isClimbing)
+        {
+            if (middleRay && climbableHitMiddle.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
+            {
+                Debug.DrawRay(climbableHitMiddle.point, climbableHitMiddle.normal, Color.cyan);
+
+                ClimbableHitInfo middleInfo = new ClimbableHitInfo();
+                middleInfo.hitClimbable = true;
+                middleInfo.climbableNormal = climbableHitMiddle.normal;
+
+                return middleInfo;
+            }
+            else if (bottomRay && climbableHitBottom.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
+            {
+                Debug.DrawRay(climbableHitBottom.point, climbableHitBottom.normal, Color.cyan);
+
+                ClimbableHitInfo bottomInfo = new ClimbableHitInfo();
+                bottomInfo.hitClimbable = true;
+                bottomInfo.climbableNormal = climbableHitBottom.normal;
+
+                return bottomInfo;
+            }
+        }
+
+        ClimbableHitInfo noInfo = new ClimbableHitInfo();
+        noInfo.hitClimbable = false;
+        noInfo.climbableNormal = new Vector3(0f, 0f, 0f);
+
+        return noInfo;
+    }
+
+    private IEnumerator TryAttack()
+    {
+        // wait for animation to hit its peak, then check if attack hits
+        canAttack = false;
+        // wait half of the attack animation time to execute the raycast check for attack
+        yield return new WaitForSeconds(attackTimeTotal / 2);
+
+        RaycastHit attackHit;
+        Ray ray = mainCameraCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        if (Physics.Raycast(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance)), ray.direction, out attackHit, attackReach))
+        {
+            Debug.Log("Attack");
+            Debug.Log(attackHit.transform);
+        }
+
+        yield return new WaitForSeconds(attackTimeTotal / 2);
+        canAttack = true;
     }
 
     public void FixedUpdate()
@@ -240,20 +410,32 @@ public class NewController : MonoBehaviour
         {
             charController.Move(transform.TransformDirection(movementVector) * climbingSpeed * Time.deltaTime);
         }
+        // if trying to get off of the wall we were on before
+        else if (isMovingAwayFromWall)
+        {
+            charController.Move(transform.TransformDirection(new Vector3(0f, 0f, -1f)) * movementSpeed * Time.deltaTime);
+        }
         else
         {
             charController.Move(transform.TransformDirection(movementVector) * movementSpeed * Time.deltaTime);
-        }
-        
-        if (!isClimbing) // do not apply gravity if climbing
-        {
+
             //apply gravity
             charContrYVelVector.y += gravity * Time.deltaTime;
             charController.Move(charContrYVelVector * Time.deltaTime);
         }
 
+        // if player was previously climbing up and went down to hit the ground, stop climbing
+        // don't know if here is the proper place, but it works
+        bool groundedBefore = isCharControllerGrounded;
+
         // this NEEDS to go here for some reason, check if we're grounded
         isCharControllerGrounded = charController.isGrounded;
+
+        if (isClimbing && !groundedBefore && isCharControllerGrounded)
+        {
+            isClimbing = false;
+            isMovingAwayFromWall = true;
+        }
     }
 
     // this will rotate the view by proxy
@@ -265,25 +447,12 @@ public class NewController : MonoBehaviour
         camFollowTarget.transform.localRotation = Quaternion.Euler(-turnVector.y, camFollowTarget.transform.localRotation.x, 0);
     }
 
-    public bool CheckFacingClimbable()
+    // this will rotate the view by proxy
+    void RotateCameraOnly()
     {
-        // suspected source of stuttering climbing problem, flickering between returning true and returning false when climbing W + D or W + A and rotating
-        // in strafing direction
-        RaycastHit climbableHit;
-
-        bool topRay = Physics.Raycast(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward, out climbableHit, climbingReach);
-        bool middleRay = Physics.Raycast(transform.position + transform.TransformDirection(new Vector3(0f, 0f, (playerBodyCollider.radius * 2))), transform.forward, out climbableHit, climbingReach - (playerBodyCollider.radius * 2));
-        bool bottomRay = Physics.Raycast(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward, out climbableHit, climbingReach);
-
-        if (topRay || middleRay || bottomRay)
-        {
-            //Debug.Log(climbableHit.transform);
-            if (climbableHit.transform.gameObject.layer == LayerMask.NameToLayer("Climbable"))
-            {
-                return true;
-            }
-        }
-        return false;
+        // dont know why using raw rotation works and local rotation doesn't
+        // but oh well
+        camFollowTarget.transform.rotation = Quaternion.Euler(-turnVector.y, turnVector.x, 0);
     }
 
     // just collapses the ground checks into one variable
@@ -316,9 +485,15 @@ public class NewController : MonoBehaviour
     // showing all raycasts on player
     private void OnDrawGizmos()
     {
+        // grapple raycast visual
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y - transform.localScale.y, transform.position.z), transform.forward * climbingReach);
         Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y + transform.localScale.y, transform.position.z), transform.forward * climbingReach);
         Gizmos.DrawRay(transform.position + transform.TransformDirection(new Vector3(0f, 0f, 1f)), transform.forward * (climbingReach - 1));
+
+        // attack raycast visual
+        Ray ray = mainCameraCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance)), ray.direction * attackReach);
     }
 }

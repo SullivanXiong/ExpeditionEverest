@@ -18,9 +18,13 @@ public class NewGrapplingGun : MonoBehaviour
     public GameObject player;
     public Camera mainCamera; // this is just the point at center of screen
     public GameObject grappleSrc;
+    public GameObject camFollowTarget;
 
     [Header("Grapple Settings")]
     public float grappleRange = 5f;
+
+    [Header("Distance of Camera to Reference")]
+    public float cameraDistance = 8f;
 
     // tracking variables
     private bool isGrappling;
@@ -44,18 +48,21 @@ public class NewGrapplingGun : MonoBehaviour
         playerController.isGrappling = isGrappling;
         //Debug.Log(isGrappling);
 
-        if (Input.GetKeyDown(KeyCode.Mouse1) && !isGrappling)
+        if (playerController.canGrapple) // only try anything if we CAN grapple
         {
-            TryGrapple();
-        }
+            if (Input.GetKeyDown(KeyCode.Mouse1) && !isGrappling)
+            {
+                TryGrapple();
+            }
 
-        if (Input.GetKey(KeyCode.Mouse1) && isGrappling)
-        {
-            ContinueGrapple();
-        }
-        else
-        {
-            StopGrapple();
+            if (Input.GetKey(KeyCode.Mouse1) && isGrappling)
+            {
+                ContinueGrapple();
+            }
+            else
+            {
+                StopGrapple();
+            }
         }
     }
 
@@ -91,7 +98,7 @@ public class NewGrapplingGun : MonoBehaviour
     void TryGrapple()
     {
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)); // this creates a ray at the center of the camera view
-        if (Physics.Raycast(ray.origin, ray.direction, out grappleHit, grappleRange)
+        if (Physics.Raycast(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance)), ray.direction, out grappleHit, grappleRange)
             && grappleHit.transform.gameObject.layer == LayerMask.NameToLayer("Grappleable"))
         {
             // switch player to rigidbody if they are a character controller that is not grounded
@@ -156,6 +163,6 @@ public class NewGrapplingGun : MonoBehaviour
     {
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         Gizmos.color = Color.green;
-        Gizmos.DrawRay(ray.origin, ray.direction * grappleRange);
+        Gizmos.DrawRay(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance)), ray.direction * grappleRange);
     }
 }
