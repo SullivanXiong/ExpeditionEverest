@@ -137,9 +137,12 @@ public class GrapplingGun : MonoBehaviour
     private void Ascend()
     {
         Vector3 moveVector = (grappleHit.point - gunTip.transform.position).normalized;
-        player.GetComponent<Rigidbody>().velocity += moveVector * 0.14f;
-
         float distanceFromPoint = Vector3.Distance(player.transform.position, grappleHit.point);
+
+        if (distanceFromPoint > 4f)
+        {
+            player.GetComponent<Rigidbody>().velocity += moveVector * 0.18f;
+        }
         joint.maxDistance = distanceFromPoint * 0.8f;
     }
 
