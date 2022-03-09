@@ -73,6 +73,9 @@ public class NewController : MonoBehaviour
     public float ySensitivity = 1f;
     public float yClamping = 85f;
 
+    [Header("Reset Variables")]
+    public Vector3 startPos;
+
     // state tracking variables
     [Header("DO NOT EDIT (only for visibility)")]
     public bool isRigidBodyOn;
@@ -112,6 +115,9 @@ public class NewController : MonoBehaviour
         // get total attack animation time, this will determine our attack cooldown
         attackTimeTotal = (attackAnimation.length / attackSpeedMultiplier) + attackTransitionTime;
         canAttack = true;
+
+        // set reset variables
+        startPos = transform.position;
 
         // turn to char controller state
         SwitchToCharController();
@@ -351,6 +357,18 @@ public class NewController : MonoBehaviour
     public void DealDamage(float amount)
     {
         curHealth -= amount;
+    }
+
+    public void AddHealth(float amount)
+    {
+        if (curHealth + amount > maxHealth)
+        {
+            curHealth = maxHealth;
+        }
+        else
+        {
+            curHealth += amount;
+        }
     }
 
     public void FixedUpdate()

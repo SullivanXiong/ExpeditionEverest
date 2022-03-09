@@ -48,8 +48,6 @@ public class MeleeEnemyScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.DrawRay(transform.position, (player.transform.position - transform.position).normalized * attackRange);
-
         if (enemyNavAgent.enabled && enemyNavAgent.velocity.magnitude > 0)
         {
             enemyAnimator.SetBool("isMoving", true);
@@ -84,22 +82,24 @@ public class MeleeEnemyScript : MonoBehaviour
 
     IEnumerator TryAttack()
     {
+        isAttacking = true;
+
         Vector3 lookAtPosition = player.transform.position;
         lookAtPosition.y = transform.position.y;
         transform.LookAt(lookAtPosition);
-
-        isAttacking = true;
         enemyAnimator.SetTrigger("punch");
+
+        Vector3 attackDirection = (player.transform.position - transform.position).normalized;
 
         yield return new WaitForSeconds(attackCooldown / 2);
 
         audioSrc.PlayOneShot(attackGruntSound, attackGruntSoundVol); // play grunt sound
 
         RaycastHit attackHit;
+        Debug.DrawRay(transform.position, attackDirection * attackRange, Color.green);
         // raycast in front of enemy to see if player still there
-        if (Physics.Raycast(transform.position, (player.transform.position - transform.forward).normalized, out attackHit, attackRange))
+        if (Physics.Raycast(transform.position, attackDirection, out attackHit, attackRange))
         {
-            Debug.Log(attackHit.transform);
             if (attackHit.transform.tag == "Player")
             {
                 playerController.DealDamage(damageDeal);
@@ -109,7 +109,6 @@ public class MeleeEnemyScript : MonoBehaviour
         yield return new WaitForSeconds(attackCooldown / 2);
 
         isAttacking = false;
-        Debug.Log(isAttacking);
     }
 
     bool PlayerInAttackRange()

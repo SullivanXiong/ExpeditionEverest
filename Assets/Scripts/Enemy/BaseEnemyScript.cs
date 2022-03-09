@@ -242,9 +242,6 @@ public class BaseEnemyScript : MonoBehaviour
         Vector3 reorientVector = transform.forward;
         reorientVector.y = 0f;
 
-        Debug.Log(groundHit.transform);
-        Debug.Log(groundHit.point.y);
-
         transform.position = new Vector3(transform.position.x, groundHit.point.y + transform.localScale.y, transform.position.z);
         transform.rotation = Quaternion.LookRotation(reorientVector);
 
