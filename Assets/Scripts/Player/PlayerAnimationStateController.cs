@@ -29,7 +29,7 @@ public class PlayerAnimationStateController : MonoBehaviour
     {
         movementVector = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
 
-        if (Input.GetKeyDown(KeyCode.Mouse0) && playerController.canAttack && !playerController.isClimbing)
+        if (Input.GetKey(KeyCode.Mouse0) && playerController.canAttack && !playerController.isClimbing)
         {
             playerAnimator.SetTrigger("Attack");
         }

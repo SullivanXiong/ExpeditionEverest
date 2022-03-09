@@ -28,10 +28,15 @@ public class BulletScript : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            other.gameObject.GetComponent<PlayerController>().curHealth -= bulletDamage;
+            other.gameObject.GetComponent<NewController>().DealDamage(bulletDamage);
             Destroy(gameObject);
         }
-        else if (other.gameObject.layer != LayerMask.NameToLayer("Ignore Raycast") && other.gameObject.tag != "Enemy")
+        // enemies can do damage to each other
+        else if (other.gameObject.tag == "Enemy") {
+            other.gameObject.GetComponent<BaseEnemyScript>().DamageEnemy(bulletDamage);
+            Destroy(gameObject);
+        }
+        else if (other.gameObject.layer != LayerMask.NameToLayer("Ignore Raycast"))
         {
             Destroy(gameObject);
         }

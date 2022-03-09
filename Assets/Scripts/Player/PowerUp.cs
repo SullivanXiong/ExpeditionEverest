@@ -7,9 +7,16 @@ public class PowerUp : MonoBehaviour
 {
     private NewController playerController;
 
+    private AudioSource audioSrc;
+    public AudioClip equipSound;
+    public float equipSoundVol = 1f;
+    public AudioClip healthSound;
+    public float healthSoundVol = 1f;
+
     // these are legacy booleans
     public bool canClimb;
     public bool canGrapple;
+    public float healthPowerUpAmt = 30f;
 
     public GameObject grappleImage;
     public GameObject pickImage;
@@ -19,6 +26,7 @@ public class PowerUp : MonoBehaviour
     void Start()
     {
         playerController = gameObject.GetComponent<NewController>();
+        audioSrc = gameObject.GetComponent<AudioSource>();
 
         grappleImage.SetActive(false);
         pickImage.SetActive(false);
@@ -28,6 +36,7 @@ public class PowerUp : MonoBehaviour
     {
         if (other.tag == "PowerUpGrappleHook")
         {
+            audioSrc.PlayOneShot(equipSound, equipSoundVol);
             canClimb = true; // not necessary for new player controller
             playerController.canGrapple = true;
             grappleImage.SetActive(true);
@@ -35,9 +44,16 @@ public class PowerUp : MonoBehaviour
         }
         else if (other.tag == "PowerUpClimbingPick")
         {
+            audioSrc.PlayOneShot(equipSound, equipSoundVol);
             canGrapple = true; // not necessary for new player controller
             playerController.canClimb = true;
             pickImage.SetActive(true);
+            Destroy(other.gameObject);
+        }
+        else if (other.tag == "PowerUpHealth")
+        {
+            audioSrc.PlayOneShot(healthSound, healthSoundVol);
+            playerController.AddHealth(healthPowerUpAmt);
             Destroy(other.gameObject);
         }
     }

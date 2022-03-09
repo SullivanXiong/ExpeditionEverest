@@ -5,15 +5,10 @@ using UnityEngine;
 public class PowerUpStaticAnimation : MonoBehaviour
 {
     public float rotationSpeed = 1f;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
     {
-        transform.Rotate(Vector3.up, rotationSpeed);
+        transform.Rotate(transform.up, rotationSpeed);
     }
 }

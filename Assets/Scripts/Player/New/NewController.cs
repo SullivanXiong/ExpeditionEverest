@@ -9,8 +9,16 @@ public class NewController : MonoBehaviour
     // SWITCHING TO RIGIDBODY REDUCES THE IN-GAME FRAMERATE BECAUSE WE HAVE TO
     // SWITCH THE CAMERA SETTING TO FIXED UPDATE TO PREVENT STUTTERING
 
+    [Header("Sound Effects")]
+    private AudioSource audioSrc;
+    public float audioSrcVolume;
+    public AudioClip jumpSound;
+    public float jumpSoundVol = 1f;
+    public AudioClip punchSound;
+    public float punchSoundVol = 0.5f;
+
     // script reference variables
-    private CharacterController charController;
+    public CharacterController charController;
     [HideInInspector]
     public Rigidbody playerBody;
     private CapsuleCollider playerBodyCollider;
@@ -49,6 +57,7 @@ public class NewController : MonoBehaviour
     [Header("Action Variables")]
     public float climbingReach = 5f;
     public float attackReach = 5f;
+    public float meleeDamage = 20f;
 
     [Header("Combat Variables")]
     public float maxHealth = 100f;
@@ -64,6 +73,9 @@ public class NewController : MonoBehaviour
     public float ySensitivity = 1f;
     public float yClamping = 85f;
 
+    [Header("Reset Variables")]
+    public Vector3 startPos;
+
     // state tracking variables
     [Header("DO NOT EDIT (only for visibility)")]
     public bool isRigidBodyOn;
@@ -76,6 +88,8 @@ public class NewController : MonoBehaviour
     // are we attempting to move away from the wall after climbing down?
     private bool isMovingAwayFromWall;
     public bool isGrappling;
+    public bool isGrapplingEnemy;
+    public bool isGrappleAscending;
 
     public bool canGrapple;
     public bool canClimb;
@@ -95,10 +109,15 @@ public class NewController : MonoBehaviour
         playerBody = gameObject.GetComponent<Rigidbody>();
         playerBodyCollider = gameObject.GetComponent<CapsuleCollider>();
         cameraBrain = mainCamera.GetComponent<Cinemachine.CinemachineBrain>();
+        audioSrc = gameObject.GetComponent<AudioSource>();
+        audioSrcVolume = audioSrc.volume;
 
         // get total attack animation time, this will determine our attack cooldown
         attackTimeTotal = (attackAnimation.length / attackSpeedMultiplier) + attackTransitionTime;
         canAttack = true;
+
+        // set reset variables
+        startPos = transform.position;
 
         // turn to char controller state
         SwitchToCharController();
@@ -113,8 +132,8 @@ public class NewController : MonoBehaviour
         // update health slider value
         healthSlider.value = curHealth;
 
-        // deactivate rigidbody when we hit the ground (if we are a rigidbody
-        if (isRigidBodyOn && isRBGrounded && !isCharControllerOn) // AND on the ground
+        // deactivate rigidbody when we hit the ground (if we are a rigidbody and not grappleAscending)
+        if (isRigidBodyOn && isRBGrounded && !isCharControllerOn && !isGrappleAscending) // AND on the ground
         {
             // switch back to char controller
             SwitchToCharController();
@@ -154,12 +173,14 @@ public class NewController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space) && isPlayerGrounded && !isClimbing)
             {
                 charContrYVelVector.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
+                audioSrc.PlayOneShot(jumpSound);
             }
             // jumping from a wall
             else if (Input.GetKeyDown(KeyCode.Space) && isClimbing)
             {
                 isClimbing = false;
                 charContrYVelVector.y += Mathf.Sqrt(jumpHeightFromWall * -3.0f * gravity);
+                audioSrc.PlayOneShot(jumpSound);
             }
 
             MovePlayerCharController();
@@ -175,7 +196,7 @@ public class NewController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Mouse0) && canAttack && !isClimbing)
+        if (Input.GetKey(KeyCode.Mouse0) && canAttack && !isClimbing)
         {
             StartCoroutine(TryAttack());
         }
@@ -312,14 +333,42 @@ public class NewController : MonoBehaviour
 
         RaycastHit attackHit;
         Ray ray = mainCameraCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        if (Physics.Raycast(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance)), ray.direction, out attackHit, attackReach))
+        if (Physics.Raycast(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance - 1)), ray.direction, out attackHit, attackReach))
         {
-            Debug.Log("Attack");
-            Debug.Log(attackHit.transform);
+            if (attackHit.transform.tag == "Enemy")
+            {
+                audioSrc.PlayOneShot(punchSound, punchSoundVol); // play at half volume
+
+                GameObject foundEnemy = attackHit.transform.gameObject;
+                BaseEnemyScript baseEnemyScript = foundEnemy.GetComponent<BaseEnemyScript>();
+                Rigidbody enemyRb = foundEnemy.GetComponent<Rigidbody>();
+
+                baseEnemyScript.DamageEnemy(meleeDamage);
+                //baseEnemyScript.RagdollEnemy();
+                //enemyRb.AddForce(foundEnemy.transform.position - transform.position, ForceMode.Impulse);
+            }
         }
 
         yield return new WaitForSeconds(attackTimeTotal / 2);
+
         canAttack = true;
+    }
+
+    public void DealDamage(float amount)
+    {
+        curHealth -= amount;
+    }
+
+    public void AddHealth(float amount)
+    {
+        if (curHealth + amount > maxHealth)
+        {
+            curHealth = maxHealth;
+        }
+        else
+        {
+            curHealth += amount;
+        }
     }
 
     public void FixedUpdate()
@@ -333,7 +382,7 @@ public class NewController : MonoBehaviour
         {
             if (!isPlayerGrounded)
             {
-                if (isGrappling)
+                if (isGrappling && !isGrapplingEnemy)
                 {
                     playerBody.AddForce(transform.TransformDirection(movementVector) * grappleControlForce, ForceMode.Acceleration);
                 }
@@ -447,11 +496,11 @@ public class NewController : MonoBehaviour
     // just collapses the ground checks into one variable
     public bool UpdatePlayerGrounded()
     {
-        if (isCharControllerOn && !isRigidBodyOn && isCharControllerGrounded)
+        if (isCharControllerOn && isCharControllerGrounded && !isRigidBodyOn)
         {
             return true;
         }
-        else if (isRigidBodyOn && !isCharControllerOn && isCharControllerGrounded)
+        else if (isRigidBodyOn && isRBGrounded && !isCharControllerOn)
         {
             return true;
         }
@@ -483,6 +532,6 @@ public class NewController : MonoBehaviour
         // attack raycast visual
         Ray ray = mainCameraCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance)), ray.direction * attackReach);
+        Gizmos.DrawRay(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance - 1)), ray.direction * attackReach);
     }
 }
