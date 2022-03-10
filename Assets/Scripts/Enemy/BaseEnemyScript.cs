@@ -25,6 +25,7 @@ public class BaseEnemyScript : MonoBehaviour
     public GameObject enemyUIPrefab;
     private GameObject enemyUI;
     public GameObject enemyModel;
+    public GameOverScript gameOverScript;
     private CapsuleCollider enemyCollider;
 
     // reference scripts
@@ -84,9 +85,13 @@ public class BaseEnemyScript : MonoBehaviour
         isNavAgent = enemyAgent.enabled;
         enemyHealthSlider.value = curHealth;
 
-        if (!isDead && curHealth <= 0 && isGrounded)
+        if (!isDead && curHealth <= 0)
         {
             StartCoroutine(KillEnemy());
+            if (gameObject.name == "EnemyBoss")
+            {
+                gameOverScript.Setup();
+            }
         }
 
         if (!isDead && !inGetUpState && !isGrappled)

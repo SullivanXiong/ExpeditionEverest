@@ -211,7 +211,7 @@ public class NewGrapplingGun : MonoBehaviour
         }
     }
 
-    void StopGrapple()
+    public void StopGrapple()
     {
         if (isGrappling)
         {

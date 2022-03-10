@@ -366,6 +366,7 @@ GameObject:
   - component: {fileID: 5671684889282533426}
   - component: {fileID: 3496674614090316530}
   - component: {fileID: 5671684889282533431}
+  - component: {fileID: 5467729057758291503}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -410,6 +411,7 @@ MonoBehaviour:
   canGrapple: 0
   healthPowerUpAmt: 50
   grappleImage: {fileID: 0}
+  grappleSlider: {fileID: 0}
   pickImage: {fileID: 0}
 --- !u!143 &3496674614090316531
 CharacterController:
@@ -613,6 +615,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5467729057758291503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5671684889282533436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 288102a95c1d36c4eb342b1854b0600f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  forceMagnitude: 1.5
 --- !u!1001 &3496674614035746141
 PrefabInstance:
   m_ObjectHideFlags: 0
