@@ -10,6 +10,7 @@ TagManager:
   - Checkpoint
   - PowerUpGrappleHook
   - PowerUpClimbingPick
+  - PowerUpHealth
   layers:
   - Default
   - TransparentFX

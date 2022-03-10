@@ -5,50 +5,96 @@ using TMPro;
 
 public class InstructionalUIManager : MonoBehaviour
 {
-    public string messageToDisplay = "Set an instructional message to load when touching this Object";
-    public float displayTime;
+
     private GameObject textObject;
     private TMPro.TMP_Text textComp;
-    private bool displayed = false;
+    private InstructionalUIBase instrUIBase;
+
+    [Header("Instructional UI Variables")]
+    public string messageToDisplay = "Set an instructional message to load when touching this Object";
+    public float displayTime = 5f;
+    public bool repeatShow = false;
+
+    // tracking variables
+    [Header("Tracking Variables - DO NOT modify")]
+    public bool currentlyDisplayed = false;
+    public bool needToDisplay = false;
+    public bool alreadyShown = false;
+    public float displayTimeTrack;
 
     // Start is called before the first frame update
     void Start()
     {
-        displayTime = 5f;
         textObject = GameObject.Find("InstructionalUI");
+        instrUIBase = textObject.GetComponent<InstructionalUIBase>();
         textComp = textObject.GetComponent<TMPro.TMP_Text>();
         textComp.enabled = false;
+
+        displayTimeTrack = displayTime;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (displayed && displayTime > 0) {
-            displayTime -= Time.deltaTime * 1f;
+        if (needToDisplay && !currentlyDisplayed && !instrUIBase.somethingDisplayed)
+        {
+            instrUIBase.somethingDisplayed = true;
+
+            textComp.text = messageToDisplay; // display the message
+            textComp.enabled = true;
+
+            currentlyDisplayed = true; // set the tracking variables
+            needToDisplay = false;
+            alreadyShown = true;
         }
-        else if (displayTime <= 0) {
+        else if (currentlyDisplayed)
+        {
+            displayTimeTrack -= Time.deltaTime;
+        }
+
+        if (currentlyDisplayed && displayTimeTrack <= 0)
+        {
+            instrUIBase.somethingDisplayed = false;
+
             textComp.enabled = false;
-            displayed = false;
-            displayTime = 5f;
+
+            displayTimeTrack = displayTime;
+            currentlyDisplayed = false;
+            needToDisplay = false;
         }
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        Debug.Log(collision.collider.tag);
-        if (collision.collider.tag == "Player" && !displayed) {
-            textComp.text = messageToDisplay;
-            textComp.enabled = true;
-            displayed = true;
+        if (collision.collider.tag == "Player" && !currentlyDisplayed) {
+            if (repeatShow)
+            {
+                needToDisplay = true;
+            }
+            else
+            {
+                if (!alreadyShown)
+                {
+                    needToDisplay = true;
+                }
+            }
         }
     }
 
     void OnTriggerEnter(Collider collider)
     {
-        if (collider.tag == "Player" && !displayed) {
-            textComp.text = messageToDisplay;
-            textComp.enabled = true;
-            displayed = true;
+        if (collider.tag == "Player" && !currentlyDisplayed) {
+            if (repeatShow)
+            {
+                needToDisplay = true;
+            }
+            else
+            {
+                if (!alreadyShown)
+                {
+                    needToDisplay = true;
+                }
+            }
         }
     }
 }

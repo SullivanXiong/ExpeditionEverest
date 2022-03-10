@@ -11,11 +11,12 @@ public class NewController : MonoBehaviour
 
     [Header("Sound Effects")]
     private AudioSource audioSrc;
-    public float audioSrcVolume;
     public AudioClip jumpSound;
     public float jumpSoundVol = 1f;
     public AudioClip punchSound;
     public float punchSoundVol = 0.5f;
+    public AudioClip hurtSound;
+    public float hurtSoundVol = 1f;
 
     // script reference variables
     public CharacterController charController;
@@ -110,7 +111,6 @@ public class NewController : MonoBehaviour
         playerBodyCollider = gameObject.GetComponent<CapsuleCollider>();
         cameraBrain = mainCamera.GetComponent<Cinemachine.CinemachineBrain>();
         audioSrc = gameObject.GetComponent<AudioSource>();
-        audioSrcVolume = audioSrc.volume;
 
         // get total attack animation time, this will determine our attack cooldown
         attackTimeTotal = (attackAnimation.length / attackSpeedMultiplier) + attackTransitionTime;
@@ -124,6 +124,32 @@ public class NewController : MonoBehaviour
 
         // default camera to late update
         cameraBrain.m_UpdateMethod = Cinemachine.CinemachineBrain.UpdateMethod.LateUpdate;
+    }
+
+    IEnumerator KillPlayer()
+    {
+        Debug.Log("Killing Player");
+        ResetPlayerPos();
+        yield return null;
+    }
+
+    void ResetPlayerPos()
+    {
+        transform.position = startPos;
+        SwitchToCharController();
+    }
+
+    void ResetPlayerHealth()
+    {
+        curHealth = maxHealth;
+    }
+
+    private void LateUpdate() // this is where we manage all of our resets and kill events
+    {
+        if (curHealth <= 0)
+        {
+            int i = 0;
+        }
     }
 
     // Update is called once per frame
@@ -356,6 +382,7 @@ public class NewController : MonoBehaviour
 
     public void DealDamage(float amount)
     {
+        audioSrc.PlayOneShot(hurtSound, hurtSoundVol);
         curHealth -= amount;
     }
 
@@ -369,6 +396,11 @@ public class NewController : MonoBehaviour
         {
             curHealth += amount;
         }
+    }
+
+    public void SetNewStartPos(Vector3 pos)
+    {
+        startPos = pos;
     }
 
     public void FixedUpdate()
@@ -517,6 +549,20 @@ public class NewController : MonoBehaviour
         if (collision.GetContact(0).normal.y > 0.05)
         {
             isRBGrounded = true;
+        }
+        // kill player when touching kills
+        if (collision.transform.gameObject.layer == LayerMask.NameToLayer("Kills"))
+        {
+            ResetPlayerPos();
+        }
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // kill player when touching kills
+        if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Kills"))
+        {
+            ResetPlayerPos();
         }
     }
 
