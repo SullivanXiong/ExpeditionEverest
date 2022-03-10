@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NewGrapplingGun : MonoBehaviour
 {
@@ -27,6 +28,7 @@ public class NewGrapplingGun : MonoBehaviour
     public Camera mainCamera; // this is just the point at center of screen
     public GameObject grappleSrc;
     public GameObject camFollowTarget;
+    public Slider cooldownSlider;
 
     [Header("Grapple Settings")]
     public float grappleRange = 5f;
@@ -37,6 +39,8 @@ public class NewGrapplingGun : MonoBehaviour
     public float minAscendDist = 5f;
     public GameObject pullToWhat;
     public float grappleDamage = 10f;
+    public float enemyGrappleCooldown = 2f;
+    public float curCooldown;
 
     [Header("Distance of Camera to Reference")]
     public float cameraDistance = 8f;
@@ -57,6 +61,7 @@ public class NewGrapplingGun : MonoBehaviour
 
         // set init booleans
         isGrappling = false;
+        curCooldown = enemyGrappleCooldown;
 
         ResetLineRenderer();
     }
@@ -64,6 +69,11 @@ public class NewGrapplingGun : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        cooldownSlider.value = curCooldown / enemyGrappleCooldown * 100;
+        if (curCooldown <= enemyGrappleCooldown) {
+            curCooldown += Time.deltaTime;
+        }
+
         playerController.isGrappleAscending = isAscending;
         playerController.isGrappling = isGrappling;
         playerController.isGrapplingEnemy = hitEnemy;
@@ -152,6 +162,10 @@ public class NewGrapplingGun : MonoBehaviour
         {
             StopGrapple();
         }
+        if (hitEnemy && grappleHit.transform.gameObject.GetComponent<BaseEnemyScript>().isDead)
+        {
+            StopGrapple();
+        }
     }
 
     void TryGrapple()
@@ -160,25 +174,27 @@ public class NewGrapplingGun : MonoBehaviour
         if (Physics.Raycast(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance)), ray.direction, out grappleHit, grappleRange)
             && grappleHit.transform.gameObject.layer == LayerMask.NameToLayer("Grappleable"))
         {
-            audioSrc.PlayOneShot(grappleShootSound, grappleShootSoundVol);
 
             if (grappleHit.transform.gameObject.tag == "Enemy")
             {
+                if (curCooldown <= enemyGrappleCooldown)
+                {
+                    return;
+                }
+
+                audioSrc.PlayOneShot(grappleShootSound, grappleShootSoundVol);
+
                 GameObject enemy = grappleHit.transform.gameObject;
                 BaseEnemyScript hitEnemyScript = enemy.GetComponent<BaseEnemyScript>();
 
                 hitEnemyScript.DamageEnemy(grappleDamage);
                 hitEnemyScript.HitByGrapple(enemyPullInDistance, enemyPullInSpeed, pullToWhat); // pulling to player gives better effect than pulling to gun
                 hitEnemy = true;
-
-                //if (hitEnemyScript.curHealth <= 0)
-                //{
-                //    Debug.Log("Stop Grapple");
-                //    StopGrapple();
-                //}
+                curCooldown = 0;
             }
             else
             {
+                audioSrc.PlayOneShot(grappleShootSound, grappleShootSoundVol);
                 // switch player to rigidbody if they are a character controller that is not grounded
                 if (playerController.isCharControllerOn && !playerController.isRigidBodyOn && !playerController.isCharControllerGrounded)
                 {
