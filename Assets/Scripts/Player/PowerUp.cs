@@ -5,8 +5,19 @@ using UnityEngine.UI;
 
 public class PowerUp : MonoBehaviour
 {
-    public bool canGrapple = false;
-    public bool canClimb = false;
+    private NewController playerController;
+
+    private AudioSource audioSrc;
+    public AudioClip equipSound;
+    public float equipSoundVol = 1f;
+    public AudioClip healthSound;
+    public float healthSoundVol = 1f;
+
+    // these are legacy booleans
+    public bool canClimb;
+    public bool canGrapple;
+    public float healthPowerUpAmt = 30f;
+
     public GameObject grappleImage;
     public GameObject pickImage;
 
@@ -14,28 +25,35 @@ public class PowerUp : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        playerController = gameObject.GetComponent<NewController>();
+        audioSrc = gameObject.GetComponent<AudioSource>();
+
         grappleImage.SetActive(false);
         pickImage.SetActive(false);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "PowerUpGrappleHook")
         {
-            canGrapple = true;
+            audioSrc.PlayOneShot(equipSound, equipSoundVol);
+            canClimb = true; // not necessary for new player controller
+            playerController.canGrapple = true;
             grappleImage.SetActive(true);
             Destroy(other.gameObject);
         }
         else if (other.tag == "PowerUpClimbingPick")
         {
-            canClimb = true;
+            audioSrc.PlayOneShot(equipSound, equipSoundVol);
+            canGrapple = true; // not necessary for new player controller
+            playerController.canClimb = true;
             pickImage.SetActive(true);
+            Destroy(other.gameObject);
+        }
+        else if (other.tag == "PowerUpHealth")
+        {
+            audioSrc.PlayOneShot(healthSound, healthSoundVol);
+            playerController.AddHealth(healthPowerUpAmt);
             Destroy(other.gameObject);
         }
     }
