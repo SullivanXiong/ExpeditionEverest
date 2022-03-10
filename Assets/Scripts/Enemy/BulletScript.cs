@@ -26,6 +26,11 @@ public class BulletScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        bool isGodMode = other.gameObject.GetComponent<PlayerController>().isGodMode;
+        if (isGodMode)
+        {
+            return;
+        }
         if (other.gameObject.tag == "Player")
         {
             other.gameObject.GetComponent<NewController>().DealDamage(bulletDamage);
