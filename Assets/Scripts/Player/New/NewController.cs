@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class NewController : MonoBehaviour
 {
@@ -12,11 +11,14 @@ public class NewController : MonoBehaviour
 
     [Header("Sound Effects")]
     private AudioSource audioSrc;
-    public float audioSrcVolume;
     public AudioClip jumpSound;
     public float jumpSoundVol = 1f;
     public AudioClip punchSound;
     public float punchSoundVol = 0.5f;
+    public AudioClip hurtSound;
+    public float hurtSoundVol = 1f;
+    public AudioClip deathSound;
+    public float deathSoundVol = 1f;
 
     // script reference variables
     public CharacterController charController;
@@ -85,7 +87,6 @@ public class NewController : MonoBehaviour
     public bool isCharControllerGrounded;
     public bool isPlayerGrounded;
 
-    public bool isGodMode;
     public bool isClimbing;
     // are we attempting to move away from the wall after climbing down?
     private bool isMovingAwayFromWall;
@@ -99,7 +100,7 @@ public class NewController : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1;
-        isGodMode = false;
+
         // lock cursor
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -112,7 +113,6 @@ public class NewController : MonoBehaviour
         playerBodyCollider = gameObject.GetComponent<CapsuleCollider>();
         cameraBrain = mainCamera.GetComponent<Cinemachine.CinemachineBrain>();
         audioSrc = gameObject.GetComponent<AudioSource>();
-        audioSrcVolume = audioSrc.volume;
 
         // get total attack animation time, this will determine our attack cooldown
         attackTimeTotal = (attackAnimation.length / attackSpeedMultiplier) + attackTransitionTime;
@@ -126,6 +126,33 @@ public class NewController : MonoBehaviour
 
         // default camera to late update
         cameraBrain.m_UpdateMethod = Cinemachine.CinemachineBrain.UpdateMethod.LateUpdate;
+    }
+
+    void KillPlayer()
+    {
+        audioSrc.PlayOneShot(deathSound, deathSoundVol);
+        ResetPlayerHealth();
+        ResetPlayerPos();
+    }
+
+    void ResetPlayerPos()
+    {
+        ScoreTracker.playerDeaths += 1;
+        transform.position = startPos;
+        SwitchToCharController();
+    }
+
+    void ResetPlayerHealth()
+    {
+        curHealth = maxHealth;
+    }
+
+    private void LateUpdate() // this is where we manage all of our resets and kill events
+    {
+        if (curHealth <= 0)
+        {
+            KillPlayer();
+        }
     }
 
     // Update is called once per frame
@@ -170,13 +197,9 @@ public class NewController : MonoBehaviour
                 // this must be 2f
                 charContrYVelVector.y = -2f;
             }
-            // the is climbing check prevents us from jumping when we want to climb
-            if (Input.GetKeyDown(KeyCode.Space) && isGodMode)
-            {
-                charContrYVelVector.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
-            }
+
             // regular jumping for when we are on the ground
-            else if (Input.GetKeyDown(KeyCode.Space) && isPlayerGrounded && !isClimbing)
+            if (Input.GetKeyDown(KeyCode.Space) && isPlayerGrounded && !isClimbing)
             {
                 charContrYVelVector.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
                 audioSrc.PlayOneShot(jumpSound);
@@ -209,11 +232,6 @@ public class NewController : MonoBehaviour
 
         // this has to go here
         isPlayerGrounded = UpdatePlayerGrounded();
-
-        if (Input.GetKey(KeyCode.Alpha1) && isGodMode)
-        {
-            SceneManager.LoadScene("Level1");
-        }
     }
 
     void HandleClimbing()
@@ -367,7 +385,15 @@ public class NewController : MonoBehaviour
 
     public void DealDamage(float amount)
     {
-        curHealth -= amount;
+        audioSrc.PlayOneShot(hurtSound, hurtSoundVol);
+        if (curHealth - amount < 0)
+        {
+            curHealth = 0;
+        }
+        else
+        {
+            curHealth -= amount;
+        }
     }
 
     public void AddHealth(float amount)
@@ -380,6 +406,11 @@ public class NewController : MonoBehaviour
         {
             curHealth += amount;
         }
+    }
+
+    public void SetNewStartPos(Vector3 pos)
+    {
+        startPos = pos;
     }
 
     public void FixedUpdate()
@@ -408,6 +439,14 @@ public class NewController : MonoBehaviour
                     playerBody.velocity = new Vector3((movVectorTransformed.x * movementSpeed), playerBody.velocity.y, (movVectorTransformed.z * movementSpeed));
                 }
             }
+
+            Debug.DrawRay(transform.position, Vector3.down * (transform.localScale.y + 0.1f), Color.black);
+            RaycastHit throwaway;
+            if (Physics.Raycast(transform.position, Vector3.down, out throwaway, transform.localScale.y + 0.1f))
+            {
+                isRBGrounded = true;
+            }
+
             RotatePlayer();
         }
     }
@@ -525,9 +564,28 @@ public class NewController : MonoBehaviour
     // i.e. we only need this when a rigidbody is in the air and want to check if it hit the ground
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.GetContact(0).normal.y > 0.05)
+        //int numContacts = collision.contactCount;
+        //for (int i = 0; i < numContacts; i++)
+        //{
+        //    Debug.Log(collision.GetContact(i).normal);
+        //    if (collision.GetContact(i).normal.y > 0.05)
+        //    {
+        //        isRBGrounded = true;
+        //    }
+        //}
+        // kill player when touching kills
+        if (collision.transform.gameObject.layer == LayerMask.NameToLayer("Kills"))
         {
-            isRBGrounded = true;
+            ResetPlayerPos();
+        }
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // kill player when touching kills
+        if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Kills"))
+        {
+            ResetPlayerPos();
         }
     }
 
