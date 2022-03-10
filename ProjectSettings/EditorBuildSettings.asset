@@ -5,13 +5,80 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+<<<<<<< Updated upstream
   - enabled: 0
     path: Assets/Scenes/Milestone1Scenes/SullivanPrototype.unity
     guid: 7994c4f0c9796f644b7b391de9c4b593
+=======
+>>>>>>> Stashed changes
   - enabled: 1
-    path: Assets/Scenes/SeanScene/Main Menu 1/Scenes/EEMainMenu.unity
-    guid: 559bff918bd7244f98b9e400dbe75c42
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Main Menu updated/Scenes/EEMainMenu.unity
+    guid: 66fd4b94962a8447f81be010eeb83a11
   - enabled: 1
-    path: Assets/Scenes/SeanScene/Main Menu 1/Scenes/SampleScene.unity
-    guid: e0b42121deba64c3b8594fe9e7a4bfaf
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/intro
+      #1.unity
+    guid: 71a726c0835ce408bb4fed887fce894a
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/Intro
+      #2.unity
+    guid: 25131b255104642c8a63ac4a1d3ca329
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/Intro
+      #3.unity
+    guid: 8477737d053ab4bd1b6d22848c014548
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/Intro
+      #4.unity
+    guid: ba880724e075b448fb571cd7515d8a21
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/Intro
+      #5.unity
+    guid: 623b0c283b4b9480ea465b5c61d9a525
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/Intro
+      #6.unity
+    guid: da5681aee79cc484bad5ec38c6df6f5a
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/Intro
+      #7.unity
+    guid: a87ce814ad67c42a9b79c9fab444951e
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/Intro
+      #8.unity
+    guid: c241d1dcfaa2246a5a93691ef40e8419
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/Intro
+      #9.unity
+    guid: f6148b78ab1e347c99d4bbf9aca58a4a
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/break
+      #1.unity
+    guid: c5a298fb98084462d98e1edcb442d7ca
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Closing Scenes/close
+      #1.unity
+    guid: cde85ab8cbc204821a2e15245928cc54
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Closing Scenes/close
+      #2.unity
+    guid: 56da29f0c1fc04b87918a7b38d7e2620
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Closing Scenes/close
+      #3.unity
+    guid: ba80bf2fc69be43ca855c194da879a5b
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Closing Scenes/close
+      #4.unity
+    guid: d746f0d34a0c4434ab5f962acf50b113
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Opening Scenes/break
+      #2.unity
+    guid: 4db5a55b23b6244c29f85d1252d3aa31
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Closing Scenes/close
+      #5.unity
+    guid: 5f1febd82f979467f8af593ad6c4eb5a
+  - enabled: 1
+    path: Assets/Scenes/SeanScene/MainIntroOutroCredits 1/Scenes/Closing Scenes/credits.unity
+    guid: bade60eed9f944b77849ada5d03a0581
   m_configObjects: {}
