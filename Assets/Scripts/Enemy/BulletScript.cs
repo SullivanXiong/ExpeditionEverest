@@ -24,7 +24,7 @@ public class BulletScript : MonoBehaviour
     }
 
 
-    private void OnTriggerEnter(Collider other)
+    public void OnTriggerEnter(Collider other)
     {
         bool isGodMode = other.gameObject.GetComponent<PlayerController>().isGodMode;
         if (isGodMode)

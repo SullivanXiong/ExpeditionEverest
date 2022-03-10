@@ -9891,6 +9891,8 @@ MonoBehaviour:
   avoidRange: 5
   fireCooldown: 1
   curFireCooldown: 0
+  isBoss: 0
+  bossScript: {fileID: 0}
 --- !u!114 &740732923866717329
 MonoBehaviour:
   m_ObjectHideFlags: 0

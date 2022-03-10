@@ -30,7 +30,7 @@ public class RangedEnemyScript : MonoBehaviour
 
     [Header("Boss details")]
     public bool isBoss = false;
-    public WaveUser waveUser;
+    public BossActionController bossScript;
 
     // Start is called before the first frame update
     void Start()
@@ -78,10 +78,10 @@ public class RangedEnemyScript : MonoBehaviour
                     //enemyNavAgent.destination = startPos;
 
                     if (isBoss) {
-                        if (waveUser.attacking1) {
+                        if (bossScript.attacking1) {
                             TryAttack();
                         }
-                        else if (waveUser.attacking2) {
+                        else if (bossScript.attacking2) {
                             TryAttack2();
                         }
                     }
@@ -118,12 +118,12 @@ public class RangedEnemyScript : MonoBehaviour
         {
             audioSrc.PlayOneShot(gunshotSound, gunshotSoundVol);
             Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position - gunBarrel.transform.position));
-            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(1, 0, 0) - gunBarrel.transform.position));
-            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(0, 0, 1) - gunBarrel.transform.position));
-            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(1, 0, 1) - gunBarrel.transform.position));
-            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(-1, 0, 0) - gunBarrel.transform.position));
-            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(0, 0, -1) - gunBarrel.transform.position));
-            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(-1, 0, -1) - gunBarrel.transform.position));
+            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(2, 0, 2) - gunBarrel.transform.position));
+            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(-2, 0, -2) - gunBarrel.transform.position));
+            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(4, 0, 4) - gunBarrel.transform.position));
+            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(-4, 0, -4) - gunBarrel.transform.position));
+            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(6, 0, 6) - gunBarrel.transform.position));
+            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position + new Vector3(-6, 0, -6) - gunBarrel.transform.position));
             curFireCooldown = fireCooldown;
         }
     }
