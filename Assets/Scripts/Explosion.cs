@@ -21,6 +21,7 @@ public class Explosion : MonoBehaviour
         if (other.tag == "Ground")
         {
             DamageEnemies();
+            Destroy(gameObject);
         }
     }
 
