@@ -4,14 +4,5 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/User Scenes/Milestone1Scenes/SullivanPrototype.unity
-    guid: 7994c4f0c9796f644b7b391de9c4b593
-  - enabled: 1
-    path: Assets/Scenes/SeanScene/Main Menu 1/Scenes/EEMainMenu.unity
-    guid: 559bff918bd7244f98b9e400dbe75c42
-  - enabled: 1
-    path: Assets/Scenes/SeanScene/Main Menu 1/Scenes/SampleScene.unity
-    guid: e0b42121deba64c3b8594fe9e7a4bfaf
+  m_Scenes: []
   m_configObjects: {}

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class PlayerController : MonoBehaviour
     public bool isGrappling;
     public bool isClimbing;
     public Slider healthSlider;
+    public bool isGodMode;
 
     // modifiable player attributes
 
@@ -53,6 +55,7 @@ public class PlayerController : MonoBehaviour
 
         startPos = transform.position;
         curHealth = maxHealth;
+        isGodMode = false;
 
         if (gravityMultiplier < 1)
         {
@@ -80,7 +83,12 @@ public class PlayerController : MonoBehaviour
         // jump handling
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (isGrounded)
+            if (isGodMode) 
+            {
+                isClimbing = false;
+                playerBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            }
+            else if (isGrounded)
             {
                 if (CheckOnClimbable() && playerPowers.canClimb)
                 {
@@ -107,6 +115,11 @@ public class PlayerController : MonoBehaviour
         else
         {
             isClimbing = false;
+        }
+
+        if (Input.GetKey(KeyCode.Alpha1) && isGodMode)
+        {
+            SceneManager.LoadScene("Level1");
         }
 
         // climbing check for hold
