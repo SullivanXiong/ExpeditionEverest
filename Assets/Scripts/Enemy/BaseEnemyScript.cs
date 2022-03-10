@@ -111,6 +111,8 @@ public class BaseEnemyScript : MonoBehaviour
 
     IEnumerator KillEnemy()
     {
+        ScoreTracker.playerKills += 1;
+
         audioSrc.PlayOneShot(deathSound, deathSoundVol);
 
         isDead = true;
@@ -129,6 +131,12 @@ public class BaseEnemyScript : MonoBehaviour
     public void FixedUpdate()
     {
         isGrounded = Physics.Raycast(transform.position, new Vector3(0, -1, 0), out groundHit, 3f);
+        if (isGrounded && groundHit.transform.gameObject.layer == LayerMask.NameToLayer("Kills"))
+        {
+            ScoreTracker.playerKills += 1;
+            Destroy(enemyUI);
+            Destroy(gameObject);
+        }
 
         if (!isDead)
         {
@@ -265,23 +273,5 @@ public class BaseEnemyScript : MonoBehaviour
         //    reorientRotation.y = 0f; // dont want to include y direction
         //}
 
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Kills"))
-        {
-            Destroy(enemyUI);
-            Destroy(gameObject);
-        }
-    }
-
-    private void OnCollisionStay(Collision collision)
-    {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Kills"))
-        {
-            Destroy(enemyUI);
-            Destroy(gameObject);
-        }
     }
 }

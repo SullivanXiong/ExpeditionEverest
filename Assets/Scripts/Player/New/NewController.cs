@@ -137,6 +137,7 @@ public class NewController : MonoBehaviour
 
     void ResetPlayerPos()
     {
+        ScoreTracker.playerDeaths += 1;
         transform.position = startPos;
         SwitchToCharController();
     }

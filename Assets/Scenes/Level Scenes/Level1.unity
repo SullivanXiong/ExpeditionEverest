@@ -2552,6 +2552,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1a27df32349f90f4a979edf2892b4367, type: 3}
+--- !u!1 &1097036576 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2724590472701195526, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+  m_PrefabInstance: {fileID: 2724590471084102402}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1097036578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1097036576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dab4676266452a40a8fd0b6598c0c0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &1165551236
 Mesh:
   m_ObjectHideFlags: 0
@@ -4839,6 +4856,54 @@ PrefabInstance:
     - target: {fileID: 851863505238439424, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472701195524, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472701195524, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472701195524, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_fontColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472701195524, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278190335
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472701195524, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_HorizontalAlignment
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472701195527, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 68.9419
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472701195527, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 81.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472701195527, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -0.2755
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472783017958, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 118.6712
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472783017958, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -17.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472783017958, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -0.2755
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724590472783017959, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
+      propertyPath: m_text
+      value: 'Invaders Eliminated:'
       objectReference: {fileID: 0}
     - target: {fileID: 3372338886361349510, guid: 48cf909efe6bc1049bca6f87fc79d4e4, type: 3}
       propertyPath: m_AnchorMax.x
