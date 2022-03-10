@@ -545,4 +545,16 @@ public class NewController : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawRay(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance - 1)), ray.direction * attackReach);
     }
+
+    public void ToggleHaus()
+    {
+        if (isGodMode)
+        {
+            isGodMode = false;
+        }
+        else
+        {
+            isGodMode = true;
+        }
+    }
 }
