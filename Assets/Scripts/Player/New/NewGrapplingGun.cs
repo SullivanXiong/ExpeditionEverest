@@ -59,13 +59,20 @@ public class NewGrapplingGun : MonoBehaviour
         playerController.isGrapplingEnemy = hitEnemy;
         //Debug.Log(isGrappling);
 
+        if (isGrappling)
+        {
+            if (Input.GetKey(KeyCode.Mouse0))
+            {
+                Ascend();
+            }
+        }
+
         if (playerController.canGrapple) // only try anything if we CAN grapple
         {
             if (Input.GetKeyDown(KeyCode.Mouse1) && !isGrappling)
             {
                 TryGrapple();
             }
-
             if (Input.GetKey(KeyCode.Mouse1) && isGrappling)
             {
                 ContinueGrapple();
@@ -203,6 +210,18 @@ public class NewGrapplingGun : MonoBehaviour
         ResetLineRenderer();
         isGrappling = false;
         isAscending = false;
+    }
+
+    private void Ascend()
+    {
+        Vector3 moveVector = (grappleHit.point - grappleSrc.transform.position).normalized;
+        float distanceFromPoint = Vector3.Distance(player.transform.position, grappleHit.point);
+
+        if (distanceFromPoint > 4f)
+        {
+            player.GetComponent<Rigidbody>().velocity += moveVector * 0.18f;
+        }
+        springJoint.maxDistance = distanceFromPoint * 0.2f;
     }
 
     void ResetLineRenderer()

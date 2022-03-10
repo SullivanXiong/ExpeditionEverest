@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class NewController : MonoBehaviour
 {
@@ -84,6 +85,7 @@ public class NewController : MonoBehaviour
     public bool isCharControllerGrounded;
     public bool isPlayerGrounded;
 
+    public bool isGodMode;
     public bool isClimbing;
     // are we attempting to move away from the wall after climbing down?
     private bool isMovingAwayFromWall;
@@ -97,7 +99,7 @@ public class NewController : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1;
-
+        isGodMode = false;
         // lock cursor
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -168,9 +170,13 @@ public class NewController : MonoBehaviour
                 // this must be 2f
                 charContrYVelVector.y = -2f;
             }
-
+            // the is climbing check prevents us from jumping when we want to climb
+            if (Input.GetKeyDown(KeyCode.Space) && isGodMode)
+            {
+                charContrYVelVector.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
+            }
             // regular jumping for when we are on the ground
-            if (Input.GetKeyDown(KeyCode.Space) && isPlayerGrounded && !isClimbing)
+            else if (Input.GetKeyDown(KeyCode.Space) && isPlayerGrounded && !isClimbing)
             {
                 charContrYVelVector.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
                 audioSrc.PlayOneShot(jumpSound);
@@ -203,6 +209,11 @@ public class NewController : MonoBehaviour
 
         // this has to go here
         isPlayerGrounded = UpdatePlayerGrounded();
+
+        if (Input.GetKey(KeyCode.Alpha1) && isGodMode)
+        {
+            SceneManager.LoadScene("Level1");
+        }
     }
 
     void HandleClimbing()
