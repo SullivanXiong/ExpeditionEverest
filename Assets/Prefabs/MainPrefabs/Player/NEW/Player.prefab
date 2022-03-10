@@ -85,6 +85,7 @@ MonoBehaviour:
   mainCamera: {fileID: 0}
   grappleSrc: {fileID: 3496674615671421283}
   camFollowTarget: {fileID: 3496674615703396238}
+  cooldownSlider: {fileID: 0}
   grappleRange: 50
   enemyPullInDistance: 5
   enemyPullInSpeed: 5
@@ -93,6 +94,8 @@ MonoBehaviour:
   minAscendDist: 5
   pullToWhat: {fileID: 0}
   grappleDamage: 10
+  enemyGrappleCooldown: 2
+  curCooldown: 0
   cameraDistance: 8
 --- !u!82 &3496674614611739559
 AudioSource:
@@ -405,7 +408,7 @@ MonoBehaviour:
   healthSoundVol: 1
   canClimb: 0
   canGrapple: 0
-  healthPowerUpAmt: 30
+  healthPowerUpAmt: 50
   grappleImage: {fileID: 0}
   pickImage: {fileID: 0}
 --- !u!143 &3496674614090316531
@@ -474,6 +477,8 @@ MonoBehaviour:
   punchSoundVol: 0.15
   hurtSound: {fileID: 8300000, guid: 245e87402da288a45a70ade69a866f61, type: 3}
   hurtSoundVol: 1
+  deathSound: {fileID: 0}
+  deathSoundVol: 1
   charController: {fileID: 0}
   playerBody: {fileID: 0}
   camFollowTarget: {fileID: 3496674615703396238}
@@ -488,7 +493,7 @@ MonoBehaviour:
   movementSpeed: 18
   jumpHeight: 10
   jumpHeightFromWall: 5
-  grappleControlForce: 5
+  grappleControlForce: 15
   climbingSpeed: 7.5
   climbingReach: 1.5
   attackReach: 5

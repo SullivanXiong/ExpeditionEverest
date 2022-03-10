@@ -98,23 +98,25 @@ public class MeleeEnemyScript : MonoBehaviour
 
         Vector3 attackDirection = (player.transform.position - transform.position).normalized;
 
-        yield return new WaitForSeconds(attackCooldown / 2);
+        yield return new WaitForSeconds(attackCooldown * 1/3);
 
-        audioSrc.PlayOneShot(attackGruntSound, attackGruntSoundVol); // play grunt sound
-
-        RaycastHit attackHit;
-        Debug.DrawRay(transform.position, attackDirection * attackRange, Color.green);
-        // raycast in front of enemy to see if player still there
-        if (Physics.Raycast(transform.position, attackDirection, out attackHit, attackRange))
+        if (!baseEnemyScript.isDead)
         {
-            if (attackHit.transform.tag == "Player")
+            audioSrc.PlayOneShot(attackGruntSound, attackGruntSoundVol); // play grunt sound
+
+            RaycastHit attackHit;
+            Debug.DrawRay(transform.position, attackDirection * attackRange, Color.green);
+            // raycast in front of enemy to see if player still there
+            if (Physics.Raycast(transform.position, attackDirection, out attackHit, attackRange))
             {
-                audioSrc.PlayOneShot(attackHitSound, attackHitSoundVol);
-                playerController.DealDamage(damageDeal);
+                if (attackHit.transform.tag == "Player")
+                {
+                    audioSrc.PlayOneShot(attackHitSound, attackHitSoundVol);
+                    playerController.DealDamage(damageDeal);
+                }
             }
         }
-
-        yield return new WaitForSeconds(attackCooldown / 2);
+        yield return new WaitForSeconds(attackCooldown * 2/3);
 
         isAttacking = false;
     }

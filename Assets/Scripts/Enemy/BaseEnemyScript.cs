@@ -275,4 +275,13 @@ public class BaseEnemyScript : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Kills"))
+        {
+            Destroy(enemyUI);
+            Destroy(gameObject);
+        }
+    }
 }
