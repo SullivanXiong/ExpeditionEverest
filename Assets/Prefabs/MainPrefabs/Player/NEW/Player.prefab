@@ -261,6 +261,7 @@ GameObject:
   - component: {fileID: 7235417761136785173}
   - component: {fileID: 1898881097820034517}
   - component: {fileID: 7235417761136785168}
+  - component: {fileID: 6500004027450066336}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -299,8 +300,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   equipSound: {fileID: 8300000, guid: 5ec9f8f1f9c40d04f8e7ecfc69a65326, type: 3}
   equipSoundVol: 1
+  healthSound: {fileID: 0}
+  healthSoundVol: 1
   canClimb: 0
   canGrapple: 0
+  healthPowerUpAmt: 30
   grappleImage: {fileID: 0}
   pickImage: {fileID: 0}
 --- !u!143 &1898881097820034516
@@ -394,11 +398,13 @@ MonoBehaviour:
   xSensitivity: 100
   ySensitivity: 100
   yClamping: 70
+  startPos: {x: 0, y: 0, z: 0}
   isRigidBodyOn: 0
   isCharControllerOn: 0
   isRBGrounded: 0
   isCharControllerGrounded: 0
   isPlayerGrounded: 0
+  isGodMode: 0
   isClimbing: 0
   isGrappling: 0
   isGrapplingEnemy: 0
@@ -501,6 +507,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6500004027450066336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7235417761136785179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 288102a95c1d36c4eb342b1854b0600f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  forceMagnitude: 1
 --- !u!1001 &1898881097799099002
 PrefabInstance:
   m_ObjectHideFlags: 0
