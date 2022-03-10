@@ -11,6 +11,8 @@ public class MeleeEnemyScript : MonoBehaviour
     private AudioSource audioSrc;
     public AudioClip attackGruntSound;
     public float attackGruntSoundVol = 1f;
+    public AudioClip attackHitSound;
+    public float attackHitSoundVol = 1f;
 
     [Header("Reference GameObjects")]
     public GameObject player;
@@ -26,6 +28,7 @@ public class MeleeEnemyScript : MonoBehaviour
     public float detectRange = 40f;
     public float attackRange = 5f;
     public float damageDeal = 10f;
+    public float startMovementSpeed = 12f;
 
     [Header("This should equal our transition + attack animation time")]
     public float attackCooldown = 1f;
@@ -43,11 +46,15 @@ public class MeleeEnemyScript : MonoBehaviour
         playerController = player.GetComponent<NewController>();
 
         audioSrc = gameObject.GetComponent<AudioSource>();
+
+        enemyNavAgent.speed = startMovementSpeed;
     }
 
     // Update is called once per frame
     void Update()
     {
+        enemyNavAgent.speed = (baseEnemyScript.curHealth / baseEnemyScript.maxHealth) * startMovementSpeed;
+
         if (enemyNavAgent.enabled && enemyNavAgent.velocity.magnitude > 0)
         {
             enemyAnimator.SetBool("isMoving", true);
@@ -102,6 +109,7 @@ public class MeleeEnemyScript : MonoBehaviour
         {
             if (attackHit.transform.tag == "Player")
             {
+                audioSrc.PlayOneShot(attackHitSound, attackHitSoundVol);
                 playerController.DealDamage(damageDeal);
             }
         }

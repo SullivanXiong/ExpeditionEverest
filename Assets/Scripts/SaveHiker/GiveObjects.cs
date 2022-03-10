@@ -6,9 +6,19 @@ public class GiveObjects : MonoBehaviour
 {
     public GameObject[] itemsToGive;
     public GameObject player;
+    public GameObject itemSpawnArea;
+    public Vector3 startSpawn;
+    public float offset;
 
     private bool alreadyGave;
     private bool collidedWithPlayer;
+
+
+    private void Start()
+    {
+        startSpawn = itemSpawnArea.transform.position;
+        startSpawn.x = startSpawn.x - itemSpawnArea.transform.localScale.x;
+    }
 
     // Update is called once per frame
     void Update()
@@ -17,7 +27,8 @@ public class GiveObjects : MonoBehaviour
         {
             Debug.Log("Giving Items");
             foreach (GameObject item in itemsToGive) {
-                Instantiate(item, player.transform.position, Quaternion.identity);
+                Instantiate(item, startSpawn + new Vector3(offset, 0f, 0f), Quaternion.identity);
+                offset += 5;
             }
             alreadyGave = true;
         }

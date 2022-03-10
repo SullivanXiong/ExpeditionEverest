@@ -159,7 +159,15 @@ public class BaseEnemyScript : MonoBehaviour
 
     public void DamageEnemy(float damage)
     {
-        curHealth -= damage;
+        if (curHealth - damage < 0)
+        {
+            curHealth = 0;
+        }
+        else
+        {
+            curHealth -= damage;
+        }
+
         if (curHealth > 0)
         {
             audioSrc.PlayOneShot(hitSound, hitSoundVol);
@@ -257,5 +265,14 @@ public class BaseEnemyScript : MonoBehaviour
         //    reorientRotation.y = 0f; // dont want to include y direction
         //}
 
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Kills"))
+        {
+            Destroy(enemyUI);
+            Destroy(gameObject);
+        }
     }
 }

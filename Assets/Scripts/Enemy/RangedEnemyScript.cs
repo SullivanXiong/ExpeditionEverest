@@ -21,12 +21,16 @@ public class RangedEnemyScript : MonoBehaviour
     private BaseEnemyScript baseEnemyScript;
     private NavMeshAgent enemyNavAgent;
     private Animator enemyAnimator;
+    private NewController playerController;
 
     [Header("Ranged Enemy Variables")]
     public float detectRange = 5f;
     public float avoidRange = 5f;
     public float fireCooldown = 1f;
     public float curFireCooldown;
+
+    // tracking
+    private bool hasFoundDestination;
 
     // Start is called before the first frame update
     void Start()
@@ -35,6 +39,7 @@ public class RangedEnemyScript : MonoBehaviour
         enemyNavAgent = gameObject.GetComponent<NavMeshAgent>();
         enemyAnimator = enemyModel.GetComponent<Animator>();
         audioSrc = gameObject.GetComponent<AudioSource>();
+        playerController = gameObject.GetComponent<NewController>();
 
         curFireCooldown = 0f;
     }
@@ -69,22 +74,49 @@ public class RangedEnemyScript : MonoBehaviour
                     lookAtPosition.y = transform.position.y;
                     transform.LookAt(lookAtPosition);
 
+                    if (Vector3.Distance(transform.position, player.transform.position) <= avoidRange)
+                    {
+                        if (!hasFoundDestination)
+                        {
+                            MoveToRandomPosition();
+                        }
+                    }
+                    else
+                    {
+                        hasFoundDestination = false;
+                    }
+
                     //// set the destination to the player's position
                     //enemyNavAgent.destination = player.transform.position;
                     //enemyNavAgent.destination = startPos;
 
                     TryAttack();
+
                 }
                 else
                 {
                     enemyAnimator.SetBool("playerInRange", false);
                 }
-
-                if (Vector3.Distance(transform.position, player.transform.position) <= avoidRange)
-                {
-                    int i = 1;
-                }
             }
+        }
+    }
+
+    void MoveToRandomPosition()
+    {
+        Vector3 randomDirection = Random.insideUnitSphere * detectRange;
+        randomDirection += transform.position;
+
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randomDirection, out hit, detectRange, 1);
+        NavMeshPath path = new NavMeshPath();
+        if (enemyNavAgent.CalculatePath(hit.position, path))
+        {
+            enemyNavAgent.SetDestination(hit.position);
+            hasFoundDestination = true;
+        }
+        else
+        {
+            hasFoundDestination = false;
         }
     }
 
@@ -92,9 +124,17 @@ public class RangedEnemyScript : MonoBehaviour
     {
         if (curFireCooldown <= 0f)
         {
-            audioSrc.PlayOneShot(gunshotSound, gunshotSoundVol);
-            Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position - gunBarrel.transform.position));
-            curFireCooldown = fireCooldown;
+            // if we have a line of fire to the player
+            RaycastHit aimOut;
+            if (Physics.Raycast(gunBarrel.transform.position, (player.transform.position - gunBarrel.transform.position).normalized, out aimOut, detectRange))
+            {
+                if (aimOut.transform.tag == "Player")
+                {
+                    audioSrc.PlayOneShot(gunshotSound, gunshotSoundVol);
+                    Instantiate(bulletPrefab, gunBarrel.transform.position, Quaternion.LookRotation(player.transform.position - gunBarrel.transform.position));
+                    curFireCooldown = fireCooldown;
+                }
+            }
         }
     }
 
@@ -102,7 +142,9 @@ public class RangedEnemyScript : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectRange);
+        Gizmos.DrawRay(gunBarrel.transform.position, (player.transform.position - gunBarrel.transform.position).normalized * detectRange);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, avoidRange);
+
     }
 }

@@ -52,9 +52,12 @@ public class PowerUp : MonoBehaviour
         }
         else if (other.tag == "PowerUpHealth")
         {
-            audioSrc.PlayOneShot(healthSound, healthSoundVol);
-            playerController.AddHealth(healthPowerUpAmt);
-            Destroy(other.gameObject);
+            if (!(playerController.curHealth >= playerController.maxHealth)) // dont pick up if health is 100%
+            {
+                audioSrc.PlayOneShot(healthSound, healthSoundVol);
+                playerController.AddHealth(healthPowerUpAmt);
+                Destroy(other.gameObject);
+            }
         }
     }
 }
