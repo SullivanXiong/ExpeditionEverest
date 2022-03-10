@@ -42,7 +42,6 @@ public class DialogueManager : MonoBehaviour
 
     public void DisplayNextSentence()
     {
-        Debug.Log(sentences.Count);
         if (sentences.Count == 0)
         {
             Debug.Log(sentences.Count);

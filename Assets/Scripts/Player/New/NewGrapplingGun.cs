@@ -14,6 +14,14 @@ public class NewGrapplingGun : MonoBehaviour
     // script reference variables
     private NewController playerController;
 
+    [Header("Sound Effects")]
+    private AudioSource audioSrc;
+    public AudioClip grappleShootSound;
+    public float grappleShootSoundVol = 1f;
+    public AudioClip grapplePullSound;
+    public float grapplePullSoundVol = 1f;
+    
+
     [Header("Reference Objects")]
     public GameObject player;
     public Camera mainCamera; // this is just the point at center of screen
@@ -28,6 +36,7 @@ public class NewGrapplingGun : MonoBehaviour
     public float ascendSpeed = 10f;
     public float minAscendDist = 5f;
     public GameObject pullToWhat;
+    public float grappleDamage = 10f;
 
     [Header("Distance of Camera to Reference")]
     public float cameraDistance = 8f;
@@ -42,6 +51,7 @@ public class NewGrapplingGun : MonoBehaviour
         // get reference scripts
         lineRenderer = gameObject.GetComponent<LineRenderer>();
         playerController = player.GetComponent<NewController>();
+        audioSrc = gameObject.GetComponent<AudioSource>();
 
         pullToWhat = player;
 
@@ -59,20 +69,13 @@ public class NewGrapplingGun : MonoBehaviour
         playerController.isGrapplingEnemy = hitEnemy;
         //Debug.Log(isGrappling);
 
-        if (isGrappling)
-        {
-            if (Input.GetKey(KeyCode.Mouse0))
-            {
-                Ascend();
-            }
-        }
-
         if (playerController.canGrapple) // only try anything if we CAN grapple
         {
             if (Input.GetKeyDown(KeyCode.Mouse1) && !isGrappling)
             {
                 TryGrapple();
             }
+
             if (Input.GetKey(KeyCode.Mouse1) && isGrappling)
             {
                 ContinueGrapple();
@@ -157,13 +160,22 @@ public class NewGrapplingGun : MonoBehaviour
         if (Physics.Raycast(ray.origin + camFollowTarget.transform.TransformDirection(new Vector3(0f, 0f, cameraDistance)), ray.direction, out grappleHit, grappleRange)
             && grappleHit.transform.gameObject.layer == LayerMask.NameToLayer("Grappleable"))
         {
+            audioSrc.PlayOneShot(grappleShootSound, grappleShootSoundVol);
+
             if (grappleHit.transform.gameObject.tag == "Enemy")
             {
                 GameObject enemy = grappleHit.transform.gameObject;
                 BaseEnemyScript hitEnemyScript = enemy.GetComponent<BaseEnemyScript>();
 
+                hitEnemyScript.DamageEnemy(grappleDamage);
                 hitEnemyScript.HitByGrapple(enemyPullInDistance, enemyPullInSpeed, pullToWhat); // pulling to player gives better effect than pulling to gun
                 hitEnemy = true;
+
+                //if (hitEnemyScript.curHealth <= 0)
+                //{
+                //    Debug.Log("Stop Grapple");
+                //    StopGrapple();
+                //}
             }
             else
             {
@@ -210,18 +222,6 @@ public class NewGrapplingGun : MonoBehaviour
         ResetLineRenderer();
         isGrappling = false;
         isAscending = false;
-    }
-
-    private void Ascend()
-    {
-        Vector3 moveVector = (grappleHit.point - grappleSrc.transform.position).normalized;
-        float distanceFromPoint = Vector3.Distance(player.transform.position, grappleHit.point);
-
-        if (distanceFromPoint > 4f)
-        {
-            player.GetComponent<Rigidbody>().velocity += moveVector * 0.18f;
-        }
-        springJoint.maxDistance = distanceFromPoint * 0.2f;
     }
 
     void ResetLineRenderer()
