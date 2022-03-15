@@ -26,6 +26,7 @@ public class BulletScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log(other.tag);
         if (other.gameObject.tag == "Player")
         {
             other.gameObject.GetComponent<NewController>().DealDamage(bulletDamage);

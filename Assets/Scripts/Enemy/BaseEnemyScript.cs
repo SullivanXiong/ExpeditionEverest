@@ -25,6 +25,7 @@ public class BaseEnemyScript : MonoBehaviour
     public GameObject enemyUIPrefab;
     private GameObject enemyUI;
     public GameObject enemyModel;
+    public GameOverScript gameOverScript;
     private CapsuleCollider enemyCollider;
 
     // reference scripts
@@ -84,9 +85,13 @@ public class BaseEnemyScript : MonoBehaviour
         isNavAgent = enemyAgent.enabled;
         enemyHealthSlider.value = curHealth;
 
-        if (!isDead && curHealth <= 0 && isGrounded)
+        if (!isDead && curHealth <= 0)
         {
             StartCoroutine(KillEnemy());
+            if (gameObject.name == "EnemyBoss")
+            {
+                gameOverScript.Setup();
+            }
         }
 
         if (!isDead && !inGetUpState && !isGrappled)
@@ -111,6 +116,8 @@ public class BaseEnemyScript : MonoBehaviour
 
     IEnumerator KillEnemy()
     {
+        ScoreTracker.playerKills += 1;
+
         audioSrc.PlayOneShot(deathSound, deathSoundVol);
 
         isDead = true;
@@ -129,6 +136,12 @@ public class BaseEnemyScript : MonoBehaviour
     public void FixedUpdate()
     {
         isGrounded = Physics.Raycast(transform.position, new Vector3(0, -1, 0), out groundHit, 3f);
+        if (isGrounded && groundHit.transform.gameObject.layer == LayerMask.NameToLayer("Kills"))
+        {
+            ScoreTracker.playerKills += 1;
+            Destroy(enemyUI);
+            Destroy(gameObject);
+        }
 
         if (!isDead)
         {
@@ -265,14 +278,5 @@ public class BaseEnemyScript : MonoBehaviour
         //    reorientRotation.y = 0f; // dont want to include y direction
         //}
 
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Kills"))
-        {
-            Destroy(enemyUI);
-            Destroy(gameObject);
-        }
     }
 }

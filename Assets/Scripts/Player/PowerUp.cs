@@ -19,8 +19,8 @@ public class PowerUp : MonoBehaviour
     public float healthPowerUpAmt = 30f;
 
     public GameObject grappleImage;
+    public GameObject grappleSlider;
     public GameObject pickImage;
-
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +30,19 @@ public class PowerUp : MonoBehaviour
 
         grappleImage.SetActive(false);
         pickImage.SetActive(false);
+        grappleSlider.SetActive(false);
+
+        if (canClimb)
+        {
+            pickImage.SetActive(true);
+            playerController.canClimb = true;
+        }
+        if (canGrapple)
+        {
+            grappleImage.SetActive(true);
+            grappleSlider.SetActive(true);
+            playerController.canGrapple = true;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -40,6 +53,7 @@ public class PowerUp : MonoBehaviour
             canClimb = true; // not necessary for new player controller
             playerController.canGrapple = true;
             grappleImage.SetActive(true);
+            grappleSlider.SetActive(true);
             Destroy(other.gameObject);
         }
         else if (other.tag == "PowerUpClimbingPick")

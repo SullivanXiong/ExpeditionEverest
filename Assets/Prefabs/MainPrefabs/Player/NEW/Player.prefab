@@ -85,6 +85,7 @@ MonoBehaviour:
   mainCamera: {fileID: 0}
   grappleSrc: {fileID: 3496674615671421283}
   camFollowTarget: {fileID: 3496674615703396238}
+  cooldownSlider: {fileID: 0}
   grappleRange: 50
   enemyPullInDistance: 5
   enemyPullInSpeed: 5
@@ -93,6 +94,8 @@ MonoBehaviour:
   minAscendDist: 5
   pullToWhat: {fileID: 0}
   grappleDamage: 10
+  enemyGrappleCooldown: 2
+  curCooldown: 0
   cameraDistance: 8
 --- !u!82 &3496674614611739559
 AudioSource:
@@ -363,6 +366,7 @@ GameObject:
   - component: {fileID: 5671684889282533426}
   - component: {fileID: 3496674614090316530}
   - component: {fileID: 5671684889282533431}
+  - component: {fileID: 5467729057758291503}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -405,8 +409,9 @@ MonoBehaviour:
   healthSoundVol: 1
   canClimb: 0
   canGrapple: 0
-  healthPowerUpAmt: 30
+  healthPowerUpAmt: 50
   grappleImage: {fileID: 0}
+  grappleSlider: {fileID: 0}
   pickImage: {fileID: 0}
 --- !u!143 &3496674614090316531
 CharacterController:
@@ -474,6 +479,8 @@ MonoBehaviour:
   punchSoundVol: 0.15
   hurtSound: {fileID: 8300000, guid: 245e87402da288a45a70ade69a866f61, type: 3}
   hurtSoundVol: 1
+  deathSound: {fileID: 0}
+  deathSoundVol: 1
   charController: {fileID: 0}
   playerBody: {fileID: 0}
   camFollowTarget: {fileID: 3496674615703396238}
@@ -488,7 +495,7 @@ MonoBehaviour:
   movementSpeed: 18
   jumpHeight: 10
   jumpHeightFromWall: 5
-  grappleControlForce: 5
+  grappleControlForce: 15
   climbingSpeed: 7.5
   climbingReach: 1.5
   attackReach: 5
@@ -608,6 +615,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5467729057758291503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5671684889282533436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 288102a95c1d36c4eb342b1854b0600f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  forceMagnitude: 1.5
 --- !u!1001 &3496674614035746141
 PrefabInstance:
   m_ObjectHideFlags: 0

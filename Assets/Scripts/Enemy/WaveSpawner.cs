@@ -13,6 +13,9 @@ public class WaveSpawner : MonoBehaviour
         public float rate;
     }
 
+    public GameObject player;
+    public GameObject mainCamera;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +39,22 @@ public class WaveSpawner : MonoBehaviour
     void SpawnEnemy(Transform _enemy)
     {
         Vector3 _sp = transform.position + new Vector3(Random.Range(-10, 10), 1, Random.Range(-10, 10));
-        Instantiate(_enemy, _sp, transform.rotation);
+        Transform enemyInstance = Instantiate(_enemy, _sp, transform.rotation);
+        GameObject enemyObject = enemyInstance.gameObject;
+        BaseEnemyScript baseScript = enemyObject.GetComponent<BaseEnemyScript>();
+
+        baseScript.player = player;
+        baseScript.mainCamera = mainCamera;
+
+        if (enemyObject.name == "EnemyMelee(Clone)")
+        {
+            MeleeEnemyScript meleeScript = enemyObject.GetComponent<MeleeEnemyScript>();
+            meleeScript.player = player;
+        }
+        else if (enemyObject.name == "EnemyRanged(Clone)")
+        {
+            RangedEnemyScript rangedScript = enemyObject.GetComponent<RangedEnemyScript>();
+            rangedScript.player = player;
+        }
     }
 }

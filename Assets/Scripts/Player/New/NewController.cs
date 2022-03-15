@@ -17,6 +17,8 @@ public class NewController : MonoBehaviour
     public float punchSoundVol = 0.5f;
     public AudioClip hurtSound;
     public float hurtSoundVol = 1f;
+    public AudioClip deathSound;
+    public float deathSoundVol = 1f;
 
     // script reference variables
     public CharacterController charController;
@@ -126,15 +128,16 @@ public class NewController : MonoBehaviour
         cameraBrain.m_UpdateMethod = Cinemachine.CinemachineBrain.UpdateMethod.LateUpdate;
     }
 
-    IEnumerator KillPlayer()
+    void KillPlayer()
     {
-        Debug.Log("Killing Player");
+        audioSrc.PlayOneShot(deathSound, deathSoundVol);
+        ResetPlayerHealth();
         ResetPlayerPos();
-        yield return null;
     }
 
     void ResetPlayerPos()
     {
+        ScoreTracker.playerDeaths += 1;
         transform.position = startPos;
         SwitchToCharController();
     }
@@ -148,7 +151,7 @@ public class NewController : MonoBehaviour
     {
         if (curHealth <= 0)
         {
-            int i = 0;
+            KillPlayer();
         }
     }
 
@@ -383,7 +386,14 @@ public class NewController : MonoBehaviour
     public void DealDamage(float amount)
     {
         audioSrc.PlayOneShot(hurtSound, hurtSoundVol);
-        curHealth -= amount;
+        if (curHealth - amount < 0)
+        {
+            curHealth = 0;
+        }
+        else
+        {
+            curHealth -= amount;
+        }
     }
 
     public void AddHealth(float amount)
@@ -429,6 +439,14 @@ public class NewController : MonoBehaviour
                     playerBody.velocity = new Vector3((movVectorTransformed.x * movementSpeed), playerBody.velocity.y, (movVectorTransformed.z * movementSpeed));
                 }
             }
+
+            Debug.DrawRay(transform.position, Vector3.down * (transform.localScale.y + 0.1f), Color.black);
+            RaycastHit throwaway;
+            if (Physics.Raycast(transform.position, Vector3.down, out throwaway, transform.localScale.y + 0.1f))
+            {
+                isRBGrounded = true;
+            }
+
             RotatePlayer();
         }
     }
@@ -546,10 +564,15 @@ public class NewController : MonoBehaviour
     // i.e. we only need this when a rigidbody is in the air and want to check if it hit the ground
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.GetContact(0).normal.y > 0.05)
-        {
-            isRBGrounded = true;
-        }
+        //int numContacts = collision.contactCount;
+        //for (int i = 0; i < numContacts; i++)
+        //{
+        //    Debug.Log(collision.GetContact(i).normal);
+        //    if (collision.GetContact(i).normal.y > 0.05)
+        //    {
+        //        isRBGrounded = true;
+        //    }
+        //}
         // kill player when touching kills
         if (collision.transform.gameObject.layer == LayerMask.NameToLayer("Kills"))
         {

@@ -6003,7 +6003,7 @@ MonoBehaviour:
   maxHealth: 100
   stunTime: 0
   deathLength: 10
-  gettingUpLength: 2.083
+  gettingUpLength: 1
 --- !u!54 &3852920327963459379
 Rigidbody:
   m_ObjectHideFlags: 0
